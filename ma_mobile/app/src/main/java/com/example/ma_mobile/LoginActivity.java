@@ -75,19 +75,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         // Email validation
         if (TextUtils.isEmpty(email)) {
-            tilEmail.setError("Email is required");
+            tilEmail.setError(getString(R.string.login_email_required));
             isValid = false;
         } else if (!isValidEmail(email)) {
-            tilEmail.setError("Please input valid email address");
+            tilEmail.setError(getString(R.string.login_email_invalid));
             isValid = false;
         }
 
         // Password validation
         if (TextUtils.isEmpty(password)) {
-            tilPassword.setError("Password is required");
+            tilPassword.setError(getString(R.string.login_password_required));
             isValid = false;
         } else if (password.length() < 6) {
-            tilPassword.setError("Password must be at least 6 characters long");
+            tilPassword.setError(getString(R.string.login_password_min_length));
             isValid = false;
         }
 
@@ -113,7 +113,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         finish();
 
-        showToast("Successfully signed up!");
+        showToast(getString(R.string.login_success_message));
     }
 
     private void navigateToRegister() {

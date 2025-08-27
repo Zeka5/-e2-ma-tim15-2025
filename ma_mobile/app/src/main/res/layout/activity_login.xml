@@ -10,7 +10,7 @@
         android:id="@+id/tv_app_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome"
+        android:text="@string/login_welcome_title"
         android:textSize="32sp"
         android:textStyle="bold"
         android:textColor="@android:color/black"
@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:hint="Email address">
+        android:hint="@string/login_email_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_email"
@@ -37,7 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:hint="Password">
+        android:hint="@string/login_password_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_password"
@@ -52,7 +52,7 @@
         android:id="@+id/btn_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign in"
+        android:text="@string/login_btn_login"
         android:textSize="16sp"
         android:layout_marginBottom="16dp"
         android:padding="12dp" />
@@ -61,7 +61,7 @@
         android:id="@+id/btn_go_to_register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign Up"
+        android:text="@string/login_btn_register"
         android:textSize="14sp"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:textColor="@android:color/holo_blue_dark" />
