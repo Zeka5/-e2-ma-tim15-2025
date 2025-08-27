@@ -104,7 +104,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void navigateToHome() {
-        Intent homeIntent = new Intent(LoginActivity.this, HomeActivity.class);
+        Intent homeIntent = new Intent(LoginActivity.this, MainActivity.class);
 
         String userEmail = getEmailInput();
         homeIntent.putExtra("USER_EMAIL", userEmail);

@@ -149,7 +149,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void navigateToHome() {
-        Intent homeIntent = new Intent(RegisterActivity.this, HomeActivity.class);
+        Intent homeIntent = new Intent(RegisterActivity.this, MainActivity.class);
 
         // Pass user data to HomeActivity
         homeIntent.putExtra("USER_EMAIL", getEmailInput());

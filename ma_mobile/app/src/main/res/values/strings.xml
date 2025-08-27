@@ -34,7 +34,13 @@
     <string name="register_passwords_no_match">Passwords do not match</string>
     <string name="register_success_message">Registration successful!</string>
 
-    <!-- Home -->
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_main">Main</string>
+    <string name="nav_account">Account</string>
+    <string name="nav_notifications">Notifications</string>
+
+    <!-- Home Screen -->
     <string name="home_title">Home</string>
     <string name="home_welcome_message">Welcome to the app!</string>
     <string name="home_btn_main">Main Screen</string>
@@ -45,9 +51,13 @@
     <string name="main_title">Main</string>
     <string name="main_content">This is the Main Screen</string>
 
-    <!-- Account -->
+    <!-- Account Screen -->
     <string name="account_title">Account</string>
     <string name="account_content">This is the Account Screen</string>
+
+    <!-- Notifications Screen -->
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_content">Your notifications will appear here</string>
 
     <!-- Toolbar -->
     <string name="toolbar_back">Back</string>
@@ -55,4 +65,6 @@
     <!-- Common -->
     <string name="error_generic">An error occurred. Please try again.</string>
     <string name="loading">Loading…</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
