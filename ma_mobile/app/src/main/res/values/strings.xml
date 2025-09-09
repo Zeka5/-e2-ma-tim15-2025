@@ -15,15 +15,15 @@
 
     <!-- Register -->
     <string name="register_title">Register</string>
-    <string name="register_full_name_hint">Full Name</string>
+    <string name="register_username_hint">Username</string>
     <string name="register_email_hint">Email Address</string>
     <string name="register_phone_hint">Phone Number</string>
     <string name="register_password_hint">Password</string>
     <string name="register_confirm_password_hint">Confirm Password</string>
     <string name="register_btn_register">Register</string>
     <string name="register_btn_back_to_login">Already have an account? Sign In</string>
-    <string name="register_full_name_required">Full name is required</string>
-    <string name="register_full_name_invalid">Please enter a valid full name</string>
+    <string name="register_username_required">Username is required</string>
+    <string name="register_username_invalid">Please enter a valid username</string>
     <string name="register_email_required">Email is required</string>
     <string name="register_email_invalid">Please enter a valid email address</string>
     <string name="register_phone_required">Phone number is required</string>
@@ -33,6 +33,7 @@
     <string name="register_confirm_password_required">Password confirmation is required</string>
     <string name="register_passwords_no_match">Passwords do not match</string>
     <string name="register_success_message">Registration successful!</string>
+    <string name="register_avatar_title">Choose Your Avatar</string>
 
     <!-- Navigation -->
     <string name="nav_home">Home</string>

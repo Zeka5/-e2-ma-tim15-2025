@@ -16,6 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ma_mobile.repository.AuthRepository;
+
 public class AccountFragment extends Fragment implements View.OnClickListener {
 
     private TextView tvUserEmail;
@@ -129,8 +131,11 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
     }
 
     private void handleLogout() {
+        AuthRepository authRepository = new AuthRepository(getContext());
+        authRepository.clearSession();
+
         Intent loginIntent = new Intent(getActivity(), LoginActivity.class);
-        loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); //cistimo stack svih prozora
         startActivity(loginIntent);
 
         showToast("Logged out successfully");

@@ -18,6 +18,7 @@ public class UserDto {
     private String email;
     private String password;
     private String role;
+    private Integer avatarId;
 
     private LocalDateTime createdAt;
 }

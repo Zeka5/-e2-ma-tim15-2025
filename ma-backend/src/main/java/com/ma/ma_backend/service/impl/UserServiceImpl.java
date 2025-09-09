@@ -1,7 +1,6 @@
 package com.ma.ma_backend.service.impl;
 
 import com.ma.ma_backend.domain.User;
-import com.ma.ma_backend.domain.UserRole;
 import com.ma.ma_backend.dto.UserDto;
 import com.ma.ma_backend.exception.EntityExistsException;
 import com.ma.ma_backend.exception.NotFoundException;
@@ -23,7 +22,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final EntityMapper entityMapper;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<UserDto> getAll() {
@@ -59,6 +57,10 @@ public class UserServiceImpl implements UserService {
 
         if(userDto.getEmail() != null) {
             user.setEmail(userDto.getEmail());
+        }
+
+        if(userDto.getAvatarId() != null) {
+            user.setAvatarId(userDto.getAvatarId());
         }
 
         User saved = userRepository.save(user);

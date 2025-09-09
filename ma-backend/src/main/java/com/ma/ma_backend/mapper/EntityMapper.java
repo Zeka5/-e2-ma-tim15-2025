@@ -13,6 +13,7 @@ public class EntityMapper {
         userDto.setEmail(user.getEmail());
         userDto.setRole(user.getRole().name());
         userDto.setCreatedAt(user.getCreatedAt());
+        userDto.setAvatarId(user.getAvatarId());
         return userDto;
     }
 }

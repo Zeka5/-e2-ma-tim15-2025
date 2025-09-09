@@ -22,7 +22,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDto> getUserInfoAndOrderHistory() {
+    public ResponseEntity<UserDto> getMyInfo() {
         return ResponseEntity.ok(userService.getMyInfo());
     }
 

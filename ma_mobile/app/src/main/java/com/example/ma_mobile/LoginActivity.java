@@ -5,10 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.ma_mobile.models.auth.AuthResponse;
+import com.example.ma_mobile.models.auth.LoginRequest;
+import com.example.ma_mobile.repository.AuthRepository;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -21,14 +26,61 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Button btnLogin;
     private Button btnGoToRegister;
 
+    private ProgressBar progressBar;
+    private AuthRepository authRepository;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        initializeRepository();
+        checkIfAlreadyLoggedIn();
         initializeViews();
         setClickListeners();
+    }
+
+    private void initializeRepository() {
+        authRepository = new AuthRepository(this);
+    }
+
+    private void checkIfAlreadyLoggedIn() {
+        if (authRepository.isLoggedIn()) {
+            navigateToMainScreen();
+        }
+    }
+
+    private void performLogin(LoginRequest loginRequest) {
+        showLoading(true);
+
+        authRepository.login(loginRequest, new AuthRepository.AuthCallback<AuthResponse>() {
+            @Override
+            public void onSuccess(AuthResponse response) {
+                showLoading(false);
+                showToast(getString(R.string.login_success_message));
+                navigateToMainScreen();
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("LoginActivity", "Login ERROR: " + error);
+                showLoading(false);
+                showToast(error);
+            }
+        });
+    }
+
+    private void showLoading(boolean isLoading) {
+        if (isLoading) {
+            progressBar.setVisibility(View.VISIBLE);
+            btnLogin.setEnabled(false);
+            btnGoToRegister.setEnabled(false);
+        } else {
+            progressBar.setVisibility(View.GONE);
+            btnLogin.setEnabled(true);
+            btnGoToRegister.setEnabled(true);
+        }
     }
 
     private void setClickListeners() {
@@ -54,7 +106,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         String password = getPasswordInput();
 
         if (validateLoginInputs(email, password)) {
-            navigateToHome();
+            LoginRequest loginRequest = new LoginRequest(email, password);
+            performLogin(loginRequest);
         }
     }
 
@@ -86,7 +139,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if (TextUtils.isEmpty(password)) {
             tilPassword.setError(getString(R.string.login_password_required));
             isValid = false;
-        } else if (password.length() < 6) {
+        } else if (password.length() < 3) {
             tilPassword.setError(getString(R.string.login_password_min_length));
             isValid = false;
         }
@@ -103,17 +156,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         tilPassword.setError(null);
     }
 
-    private void navigateToHome() {
-        Intent homeIntent = new Intent(LoginActivity.this, MainActivity.class);
+    private void navigateToMainScreen() {
+        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
 
-        String userEmail = getEmailInput();
-        homeIntent.putExtra("USER_EMAIL", userEmail);
+        if (authRepository.getCurrentUser() != null) {
+            mainIntent.putExtra("USER_EMAIL", authRepository.getCurrentUser().getEmail());
+            mainIntent.putExtra("USER_USERNAME", authRepository.getCurrentUser().getUsername());
+        }
 
-        startActivity(homeIntent);
-
+        startActivity(mainIntent);
         finish();
-
-        showToast(getString(R.string.login_success_message));
     }
 
     private void navigateToRegister() {
@@ -123,7 +175,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        if (message != null && !message.isEmpty()) {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "An error occurred", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void initializeViews() {
@@ -133,5 +189,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         etPassword = findViewById(R.id.et_password);
         btnLogin = findViewById(R.id.btn_login);
         btnGoToRegister = findViewById(R.id.btn_go_to_register);
+        progressBar = findViewById(R.id.progress_bar);
     }
 }

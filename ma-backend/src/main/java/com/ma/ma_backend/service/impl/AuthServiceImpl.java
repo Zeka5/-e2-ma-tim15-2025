@@ -34,13 +34,18 @@ public class AuthServiceImpl implements AuthService {
             throw new EntityExistsException("Username is already in use.");
         }
 
-        UserRole role = UserRole.fromString(userDto.getRole());
+        UserRole role = UserRole.USER;
+
+        if(userDto.getAvatarId() == null){
+            userDto.setAvatarId(1);
+        }
 
         User user = User.builder()
                 .username(userDto.getUsername())
                 .email(userDto.getEmail())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .role(role)
+                .avatarId(userDto.getAvatarId())
                 .build();
         User savedUser = userRepository.save(user);
 

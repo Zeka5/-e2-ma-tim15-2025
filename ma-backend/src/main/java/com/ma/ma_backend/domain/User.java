@@ -26,6 +26,8 @@ public class User {
     private String password;
     @Enumerated(EnumType.STRING)
     private UserRole role;
+    @Column(name = "avatar_id")
+    private Integer avatarId;
     @Column(name = "created_at")
     private final LocalDateTime createdAt = LocalDateTime.now();
 }
