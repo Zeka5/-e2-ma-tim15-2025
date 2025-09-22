@@ -1,0 +1,71 @@
+<resources>
+    <string name="app_name">ma_mobile</string>
+
+    <!-- Login -->
+    <string name="login_welcome_title">Welcome</string>
+    <string name="login_email_hint">Email Address</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_btn_login">Sign In</string>
+    <string name="login_btn_register">Register</string>
+    <string name="login_email_required">Email is required</string>
+    <string name="login_email_invalid">Please enter a valid email address</string>
+    <string name="login_password_required">Password is required</string>
+    <string name="login_password_min_length">Password must be at least 6 characters</string>
+    <string name="login_success_message">Successfully logged in!</string>
+
+    <!-- Register -->
+    <string name="register_title">Register</string>
+    <string name="register_username_hint">Username</string>
+    <string name="register_email_hint">Email Address</string>
+    <string name="register_phone_hint">Phone Number</string>
+    <string name="register_password_hint">Password</string>
+    <string name="register_confirm_password_hint">Confirm Password</string>
+    <string name="register_btn_register">Register</string>
+    <string name="register_btn_back_to_login">Already have an account? Sign In</string>
+    <string name="register_username_required">Username is required</string>
+    <string name="register_username_invalid">Please enter a valid username</string>
+    <string name="register_email_required">Email is required</string>
+    <string name="register_email_invalid">Please enter a valid email address</string>
+    <string name="register_phone_required">Phone number is required</string>
+    <string name="register_phone_invalid">Please enter a valid phone number</string>
+    <string name="register_password_required">Password is required</string>
+    <string name="register_password_min_length">Password must be at least 6 characters</string>
+    <string name="register_confirm_password_required">Password confirmation is required</string>
+    <string name="register_passwords_no_match">Passwords do not match</string>
+    <string name="register_success_message">Registration successful!</string>
+    <string name="register_avatar_title">Choose Your Avatar</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_main">Main</string>
+    <string name="nav_account">Account</string>
+    <string name="nav_notifications">Notifications</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">Home</string>
+    <string name="home_welcome_message">Welcome to the app!</string>
+    <string name="home_btn_main">Main Screen</string>
+    <string name="home_btn_account">Account</string>
+    <string name="home_user_greeting">Hello, %1$s!</string>
+
+    <!-- Main Screen -->
+    <string name="main_title">Main</string>
+    <string name="main_content">This is the Main Screen</string>
+
+    <!-- Account Screen -->
+    <string name="account_title">Account</string>
+    <string name="account_content">This is the Account Screen</string>
+
+    <!-- Notifications Screen -->
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_content">Your notifications will appear here</string>
+
+    <!-- Toolbar -->
+    <string name="toolbar_back">Back</string>
+
+    <!-- Common -->
+    <string name="error_generic">An error occurred. Please try again.</string>
+    <string name="loading">Loading…</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
