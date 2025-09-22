@@ -7,4 +7,5 @@ import com.ma.ma_backend.dto.UserDto;
 public interface AuthService {
     UserDto register(UserDto userDto);
     AuthData login(LoginRequest loginRequest);
+    String activateAccount(String activationToken);
 }

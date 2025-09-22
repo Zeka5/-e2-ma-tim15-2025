@@ -23,4 +23,10 @@ public class AuthController {
     public ResponseEntity<AuthData> login(@RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(authService.login(loginRequest));
     }
+
+    @GetMapping("/activate/{token}")
+    public ResponseEntity<String> activateAccount(@PathVariable String token) {
+        String message = authService.activateAccount(token);
+        return ResponseEntity.ok(message);
+    }
 }

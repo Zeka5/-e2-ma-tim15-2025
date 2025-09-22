@@ -12,9 +12,13 @@ import com.ma.ma_backend.mapper.EntityMapper;
 import com.ma.ma_backend.repository.UserRepository;
 import com.ma.ma_backend.security.jwt.JwtUtils;
 import com.ma.ma_backend.service.intr.AuthService;
+import com.ma.ma_backend.service.intr.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +28,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final EntityMapper entityMapper;
     private final JwtUtils jwtUtils;
+    private final EmailService emailService;
 
     @Override
     public UserDto register(UserDto userDto) {
@@ -40,13 +45,23 @@ public class AuthServiceImpl implements AuthService {
             userDto.setAvatarId(1);
         }
 
+        String activationToken = UUID.randomUUID().toString();
+        LocalDateTime tokenExpiry = LocalDateTime.now().plusHours(24);
+
         User user = User.builder()
                 .username(userDto.getUsername())
                 .email(userDto.getEmail())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .role(role)
                 .avatarId(userDto.getAvatarId())
+                .isActivated(false)
+                .activationToken(activationToken)
+                .tokenExpiry(tokenExpiry)
                 .build();
+        System.out.println("User creted, SENDING EMAIL");
+
+        emailService.sendActivationEmail(userDto.getEmail(), userDto.getUsername(), activationToken);
+        System.out.println("Email sent, SAVING USER");
         User savedUser = userRepository.save(user);
 
         return entityMapper.mapUserToDto(savedUser);
@@ -56,14 +71,42 @@ public class AuthServiceImpl implements AuthService {
     public AuthData login(LoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new NotFoundException("User with provided email not found"));
+
         if(!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new InvalidCredentialsException("Wrong password");
         }
+
+        if(!user.isActivated()) {
+            throw new InvalidCredentialsException("Account is not activated. Please check your email and activate your account.");
+        }
+
         String token = jwtUtils.generateTokenWithUserInfo(user);
         return AuthData.builder()
                 .user(entityMapper.mapUserToDto(user))
                 .token(token)
                 .expirationDate(jwtUtils.getExpirationDate())
                 .build();
+    }
+
+    @Override
+    public String activateAccount(String activationToken) {
+        User user = userRepository.findByActivationToken(activationToken)
+                .orElseThrow(() -> new NotFoundException("Invalid activation token"));
+
+        if (user.getTokenExpiry().isBefore(LocalDateTime.now())) {
+            userRepository.delete(user);
+            throw new InvalidCredentialsException("Activation token has expired. Please register again.");
+        }
+
+        if (user.isActivated()) {
+            return "Account is already activated";
+        }
+
+        user.setActivated(true);
+        user.setActivationToken(null);
+        user.setTokenExpiry(null);
+        userRepository.save(user);
+
+        return "Account activated successfully! You can now log in.";
     }
 }

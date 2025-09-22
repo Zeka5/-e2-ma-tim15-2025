@@ -28,6 +28,12 @@ public class User {
     private UserRole role;
     @Column(name = "avatar_id")
     private Integer avatarId;
+    @Column(name = "is_activated")
+    private boolean isActivated = false;
+    @Column(name = "activation_token")
+    private String activationToken;
+    @Column(name = "token_expiry")
+    private LocalDateTime tokenExpiry;
     @Column(name = "created_at")
     private final LocalDateTime createdAt = LocalDateTime.now();
 }
