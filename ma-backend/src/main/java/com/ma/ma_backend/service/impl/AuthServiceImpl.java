@@ -1,6 +1,8 @@
 package com.ma.ma_backend.service.impl;
 
+import com.ma.ma_backend.domain.Title;
 import com.ma.ma_backend.domain.User;
+import com.ma.ma_backend.domain.UserGameStats;
 import com.ma.ma_backend.domain.UserRole;
 import com.ma.ma_backend.dto.AuthData;
 import com.ma.ma_backend.dto.LoginRequest;
@@ -58,6 +60,18 @@ public class AuthServiceImpl implements AuthService {
                 .activationToken(activationToken)
                 .tokenExpiry(tokenExpiry)
                 .build();
+
+        UserGameStats gameStats = UserGameStats.builder()
+                .user(user)
+                .level(1)
+                .title(Title.NOVICE)
+                .powerPoints(100)
+                .experiencePoints(0)
+                .coins(0)
+                .build();
+
+        user.setGameStats(gameStats);
+
         System.out.println("User creted, SENDING EMAIL");
 
         emailService.sendActivationEmail(userDto.getEmail(), userDto.getUsername(), activationToken);

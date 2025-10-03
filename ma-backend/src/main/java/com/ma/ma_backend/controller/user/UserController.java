@@ -1,4 +1,4 @@
-package com.ma.ma_backend.controller;
+package com.ma.ma_backend.controller.user;
 
 import com.ma.ma_backend.dto.UserDto;
 import com.ma.ma_backend.service.intr.UserService;

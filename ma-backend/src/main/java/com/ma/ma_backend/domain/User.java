@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Entity
@@ -36,4 +35,7 @@ public class User {
     private LocalDateTime tokenExpiry;
     @Column(name = "created_at")
     private final LocalDateTime createdAt = LocalDateTime.now();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserGameStats gameStats;
 }

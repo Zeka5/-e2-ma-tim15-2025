@@ -5,22 +5,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserDto {
+public class UserGameStatsDto {
     private Long id;
-    private String username;
-    private String email;
-    private String password;
-    private String role;
-    private Integer avatarId;
-
-    private LocalDateTime createdAt;
-
-    private UserGameStatsDto gameStats;
+    private Integer level;
+    private String title;
+    private Integer powerPoints;
+    private Integer experiencePoints;
+    private Integer coins;
+    private String qrCode;
+    private Integer badgeCount;
+    private List<BadgeDto> badges;
 }
