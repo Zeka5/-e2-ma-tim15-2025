@@ -7,6 +7,7 @@ import com.example.ma_mobile.models.auth.RegisterRequest;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 
 public interface ApiService {
@@ -16,4 +17,7 @@ public interface ApiService {
 
     @POST("auth/register")
     Call<User> register(@Body RegisterRequest registerRequest);
+
+    @GET("users/me")
+    Call<User> getCurrentUserProfile();
 }
