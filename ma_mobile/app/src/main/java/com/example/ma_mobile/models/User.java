@@ -13,11 +13,17 @@ public class User {
     @SerializedName("email")
     private String email;
 
-    @SerializedName("avatar_id")
+    @SerializedName("role")
+    private String role;
+
+    @SerializedName("avatarId")
     private Integer avatarId;
 
-    @SerializedName("created_at")
+    @SerializedName("createdAt")
     private String createdAt;
+
+    @SerializedName("gameStats")
+    private UserGameStats gameStats;
 
     public User() {
     }
@@ -39,8 +45,16 @@ public class User {
         return email;
     }
 
+    public String getRole() {
+        return role;
+    }
+
     public String getCreatedAt() {
         return createdAt;
+    }
+
+    public UserGameStats getGameStats() {
+        return gameStats;
     }
 
     public void setId(Long id) {
@@ -55,11 +69,24 @@ public class User {
         this.email = email;
     }
 
-    public Integer getAvatarId() { return avatarId; }
-    public void setAvatarId(Integer avatarId) { this.avatarId = avatarId; }
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public Integer getAvatarId() {
+        return avatarId;
+    }
+
+    public void setAvatarId(Integer avatarId) {
+        this.avatarId = avatarId;
+    }
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public void setGameStats(UserGameStats gameStats) {
+        this.gameStats = gameStats;
     }
 
     public int getAvatarDrawableId() {

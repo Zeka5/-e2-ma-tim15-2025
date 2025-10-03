@@ -7,26 +7,48 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ma_mobile.models.User;
+import com.example.ma_mobile.models.UserGameStats;
 import com.example.ma_mobile.repository.AuthRepository;
+import com.example.ma_mobile.repository.UserRepository;
 
 public class AccountFragment extends Fragment implements View.OnClickListener {
 
-    private TextView tvUserEmail;
-    private LinearLayout llUserInfo;
-    private Button btnEditProfile;
-    private Button btnSettings;
-    private Button btnLogout;
+    private static final String TAG = "AccountFragment";
 
+    // Profile views
+    private ImageView ivAvatar;
+    private TextView tvUsername;
+    private TextView tvTitle;
+    private TextView tvEmail;
+
+    // Stats views
+    private TextView tvLevel;
+    private TextView tvXp;
+    private TextView tvPower;
+    private TextView tvCoins;
+
+    // Badge views
+    private TextView tvBadgeCount;
+    private TextView tvBadgesPlaceholder;
+
+    // Action buttons
+    private Button btnLogout;
+    private ProgressBar progressBar;
+
+    private UserRepository userRepository;
     private String userEmail;
+
     public AccountFragment() {
         // Required empty public constructor
     }
@@ -45,12 +67,12 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
         if (getArguments() != null) {
             userEmail = getArguments().getString("USER_EMAIL");
         }
+        userRepository = new UserRepository(getContext());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_account, container, false);
     }
 
@@ -59,75 +81,160 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
         super.onViewCreated(view, savedInstanceState);
 
         initializeViews(view);
-        setupUserInterface();
         setClickListeners();
+        loadUserProfile();
     }
 
     @Override
     public void onClick(View view) {
         int viewId = view.getId();
 
-        if (viewId == R.id.btn_edit_profile) {
-            handleEditProfile();
-        } else if (viewId == R.id.btn_settings) {
-            handleSettings();
-        } else if (viewId == R.id.btn_logout) {
+        if (viewId == R.id.btn_logout) {
             handleLogout();
         }
     }
 
-
-
     private void initializeViews(View view) {
-        tvUserEmail = view.findViewById(R.id.tv_user_email);
-        llUserInfo = view.findViewById(R.id.ll_user_info);
-        btnEditProfile = view.findViewById(R.id.btn_edit_profile);
-        btnSettings = view.findViewById(R.id.btn_settings);
+        // Profile views
+        ivAvatar = view.findViewById(R.id.iv_avatar);
+        tvUsername = view.findViewById(R.id.tv_username);
+        tvTitle = view.findViewById(R.id.tv_title);
+        tvEmail = view.findViewById(R.id.tv_email);
+
+        // Stats views
+        tvLevel = view.findViewById(R.id.tv_level);
+        tvXp = view.findViewById(R.id.tv_xp);
+        tvPower = view.findViewById(R.id.tv_power);
+        tvCoins = view.findViewById(R.id.tv_coins);
+
+        // Badge views
+        tvBadgeCount = view.findViewById(R.id.tv_badge_count);
+        tvBadgesPlaceholder = view.findViewById(R.id.tv_badges_placeholder);
+
+        // Action buttons
         btnLogout = view.findViewById(R.id.btn_logout);
+        progressBar = view.findViewById(R.id.progress_bar);
     }
 
     private void setClickListeners() {
-        btnEditProfile.setOnClickListener(this);
-        btnSettings.setOnClickListener(this);
         btnLogout.setOnClickListener(this);
     }
 
-    private void setupUserInterface() {
-        if (hasUserData()) {
-            displayUserInfo();
+    private void loadUserProfile() {
+        showLoading(true);
+
+        userRepository.getCurrentUserProfile(new UserRepository.UserProfileCallback() {
+            @Override
+            public void onSuccess(User user) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        showLoading(false);
+                        displayUserProfile(user);
+                    });
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        showLoading(false);
+                        showToast("Failed to load profile: " + error);
+                        Log.e(TAG, "Error loading profile: " + error);
+                    });
+                }
+            }
+        });
+    }
+
+    private void displayUserProfile(User user) {
+        if (user == null) {
+            showToast("No user data available");
+            return;
+        }
+
+        // Display basic user info
+        if (user.getUsername() != null) {
+            tvUsername.setText(user.getUsername());
+        }
+
+        if (user.getEmail() != null) {
+            tvEmail.setText(user.getEmail());
+        }
+
+        // Set avatar
+        if (user.getAvatarId() != null) {
+            ivAvatar.setImageResource(user.getAvatarDrawableId());
+        }
+
+        // Display game stats if available
+        UserGameStats stats = user.getGameStats();
+        if (stats != null) {
+            displayGameStats(stats);
         } else {
-            showNoUserData();
+            // Set default values if no stats
+            tvLevel.setText("1");
+            tvXp.setText("0");
+            tvPower.setText("0");
+            tvCoins.setText("0");
+            tvTitle.setText("Beginner");
         }
     }
 
-    private boolean hasUserData() {
-        return !TextUtils.isEmpty(userEmail);
-    }
-
-    private void displayUserInfo() {
-        llUserInfo.setVisibility(View.VISIBLE);
-
-        if (!TextUtils.isEmpty(userEmail)) {
-            tvUserEmail.setText(userEmail);
-            tvUserEmail.setVisibility(View.VISIBLE);
+    private void displayGameStats(UserGameStats stats) {
+        // Display level
+        if (stats.getLevel() != null) {
+            tvLevel.setText(String.valueOf(stats.getLevel()));
         } else {
-            tvUserEmail.setVisibility(View.GONE);
+            tvLevel.setText("1");
+        }
+
+        // Display XP
+        if (stats.getExperiencePoints() != null) {
+            tvXp.setText(String.valueOf(stats.getExperiencePoints()));
+        } else {
+            tvXp.setText("0");
+        }
+
+        // Display power points
+        if (stats.getPowerPoints() != null) {
+            tvPower.setText(String.valueOf(stats.getPowerPoints()));
+        } else {
+            tvPower.setText("0");
+        }
+
+        // Display coins
+        if (stats.getCoins() != null) {
+            tvCoins.setText(String.valueOf(stats.getCoins()));
+        } else {
+            tvCoins.setText("0");
+        }
+
+        // Display title
+        if (stats.getTitle() != null && !stats.getTitle().isEmpty()) {
+            tvTitle.setText(stats.getTitle());
+        } else {
+            tvTitle.setText("Adventurer");
+        }
+
+        // Display badge count
+        if (stats.getBadgeCount() != null && stats.getBadgeCount() > 0) {
+            tvBadgeCount.setText(String.valueOf(stats.getBadgeCount()));
+            tvBadgesPlaceholder.setVisibility(View.GONE);
+        } else {
+            tvBadgeCount.setText("0");
+            tvBadgesPlaceholder.setVisibility(View.VISIBLE);
         }
     }
 
-    private void showNoUserData() {
-        tvUserEmail.setText("No email available");
-        llUserInfo.setVisibility(View.VISIBLE);
-    }
-
-    private void handleEditProfile() {
-        showToast("Edit Profile feature coming soon!");
-        // TODO: Navigate to edit profile screen
-    }
-
-    private void handleSettings() {
-        showToast("Settings feature coming soon!");
-        // TODO: Navigate to settings screen
+    private void showLoading(boolean isLoading) {
+        if (isLoading) {
+            progressBar.setVisibility(View.VISIBLE);
+            btnLogout.setEnabled(false);
+        } else {
+            progressBar.setVisibility(View.GONE);
+            btnLogout.setEnabled(true);
+        }
     }
 
     private void handleLogout() {
@@ -135,7 +242,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
         authRepository.clearSession();
 
         Intent loginIntent = new Intent(getActivity(), LoginActivity.class);
-        loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); //cistimo stack svih prozora
+        loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(loginIntent);
 
         showToast("Logged out successfully");

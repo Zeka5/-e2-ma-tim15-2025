@@ -19,6 +19,7 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        com.example.ma_mobile.network.RetrofitClient.initialize(this);
         initializeSplashTimer();
     }
 
