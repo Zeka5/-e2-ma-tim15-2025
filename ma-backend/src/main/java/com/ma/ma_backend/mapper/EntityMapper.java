@@ -4,9 +4,12 @@ import com.ma.ma_backend.domain.Badge;
 import com.ma.ma_backend.domain.User;
 import com.ma.ma_backend.domain.UserGameStats;
 import com.ma.ma_backend.dto.BadgeDto;
+import com.ma.ma_backend.dto.PublicUserProfileDto;
 import com.ma.ma_backend.dto.UserDto;
 import com.ma.ma_backend.dto.UserGameStatsDto;
 import org.springframework.stereotype.Component;
+
+import java.util.stream.Collectors;
 
 @Component
 public class EntityMapper {
@@ -44,6 +47,27 @@ public class EntityMapper {
         dto.setName(badge.getName());
         dto.setDescription(badge.getDescription());
         dto.setIconUrl(badge.getIconUrl());
+        return dto;
+    }
+
+    public PublicUserProfileDto userToPublicProfile(User user) {
+        PublicUserProfileDto dto = new PublicUserProfileDto();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setAvatarId(user.getAvatarId());
+
+        if (user.getGameStats() != null) {
+            UserGameStats stats = user.getGameStats();
+            dto.setLevel(stats.getLevel());
+            dto.setTitle(stats.getTitle() != null ? stats.getTitle().name() : null);
+            dto.setExperiencePoints(stats.getExperiencePoints());
+            dto.setQrCode(stats.getQrCode());
+            dto.setBadgeCount(stats.getEarnedBadges().size());
+            dto.setBadges(stats.getEarnedBadges().stream()
+                    .map(this::badgeToDto)
+                    .collect(Collectors.toList()));
+        }
+
         return dto;
     }
 }

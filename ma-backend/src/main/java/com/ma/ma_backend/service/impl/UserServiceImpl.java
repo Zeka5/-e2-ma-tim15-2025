@@ -1,6 +1,7 @@
 package com.ma.ma_backend.service.impl;
 
 import com.ma.ma_backend.domain.User;
+import com.ma.ma_backend.dto.PublicUserProfileDto;
 import com.ma.ma_backend.dto.UserDto;
 import com.ma.ma_backend.exception.EntityExistsException;
 import com.ma.ma_backend.exception.NotFoundException;
@@ -13,8 +14,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -73,6 +76,25 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(()-> new NotFoundException("User not found"));
 
         userRepository.delete(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PublicUserProfileDto getPublicProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        return entityMapper.userToPublicProfile(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PublicUserProfileDto> searchUsers(String username) {
+        User currentUser = getLogedInUser();
+        List<User> users = userRepository.findByUsernameContainingIgnoreCase(username);
+        return users.stream()
+                .filter(user -> !user.getId().equals(currentUser.getId()))
+                .map(entityMapper::userToPublicProfile)
+                .collect(Collectors.toList());
     }
 
 }
