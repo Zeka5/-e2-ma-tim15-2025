@@ -1,5 +1,6 @@
 package com.ma.ma_backend.controller.user;
 
+import com.ma.ma_backend.dto.PublicUserProfileDto;
 import com.ma.ma_backend.dto.UserDto;
 import com.ma.ma_backend.service.intr.UserService;
 import lombok.RequiredArgsConstructor;
@@ -36,5 +37,15 @@ public class UserController {
     public ResponseEntity<String> delete(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.ok("Successfully deleted user");
+    }
+
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<PublicUserProfileDto> getPublicProfile(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getPublicProfile(userId));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<PublicUserProfileDto>> searchUsers(@RequestParam String username) {
+        return ResponseEntity.ok(userService.searchUsers(username));
     }
 }

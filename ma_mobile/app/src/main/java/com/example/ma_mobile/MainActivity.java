@@ -66,7 +66,11 @@ public class MainActivity extends AppCompatActivity {
                 loadHomeFragment();
                 updateToolbarTitle("Home");
                 return true;
-            }else if (itemId == R.id.nav_notifications) {
+            } else if (itemId == R.id.nav_community) {
+                loadCommunityFragment();
+                updateToolbarTitle("Community");
+                return true;
+            } else if (itemId == R.id.nav_notifications) {
                 loadNotificationsFragment();
                 updateToolbarTitle("Notifications");
                 return true;
@@ -93,6 +97,11 @@ public class MainActivity extends AppCompatActivity {
     private void loadAccountFragment() {
         AccountFragment fragment = AccountFragment.newInstance(userEmail);
         loadFragment(fragment, "AccountFragment");
+    }
+
+    private void loadCommunityFragment() {
+        CommunityFragment fragment = CommunityFragment.newInstance();
+        loadFragment(fragment, "CommunityFragment");
     }
 
     private void loadFragment(Fragment fragment, String tag) {

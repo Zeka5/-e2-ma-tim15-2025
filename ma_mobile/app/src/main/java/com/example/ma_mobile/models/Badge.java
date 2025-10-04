@@ -1,8 +1,9 @@
 package com.example.ma_mobile.models;
 
 import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-public class Badge {
+public class Badge implements Serializable {
     @SerializedName("id")
     private Long id;
 
