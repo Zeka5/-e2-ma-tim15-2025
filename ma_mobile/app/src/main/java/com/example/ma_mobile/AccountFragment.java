@@ -1,6 +1,7 @@
 package com.example.ma_mobile;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -21,6 +22,7 @@ import com.example.ma_mobile.models.User;
 import com.example.ma_mobile.models.UserGameStats;
 import com.example.ma_mobile.repository.AuthRepository;
 import com.example.ma_mobile.repository.UserRepository;
+import com.example.ma_mobile.utils.QRCodeGenerator;
 
 public class AccountFragment extends Fragment implements View.OnClickListener {
 
@@ -41,6 +43,9 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
     // Badge views
     private TextView tvBadgeCount;
     private TextView tvBadgesPlaceholder;
+
+    // QR Code view
+    private ImageView ivQrCode;
 
     // Action buttons
     private Button btnLogout;
@@ -111,6 +116,9 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
         tvBadgeCount = view.findViewById(R.id.tv_badge_count);
         tvBadgesPlaceholder = view.findViewById(R.id.tv_badges_placeholder);
 
+        // QR Code view
+        ivQrCode = view.findViewById(R.id.iv_qr_code);
+
         // Action buttons
         btnLogout = view.findViewById(R.id.btn_logout);
         progressBar = view.findViewById(R.id.progress_bar);
@@ -165,6 +173,14 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
         // Set avatar
         if (user.getAvatarId() != null) {
             ivAvatar.setImageResource(user.getAvatarDrawableId());
+        }
+
+        // Generate and display QR code
+        if (user.getId() != null) {
+            Bitmap qrBitmap = QRCodeGenerator.generateQRCodeForUser(user.getId());
+            if (qrBitmap != null) {
+                ivQrCode.setImageBitmap(qrBitmap);
+            }
         }
 
         // Display game stats if available

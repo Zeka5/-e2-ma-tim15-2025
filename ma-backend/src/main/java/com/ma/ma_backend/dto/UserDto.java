@@ -23,4 +23,6 @@ public class UserDto {
     private LocalDateTime createdAt;
 
     private UserGameStatsDto gameStats;
+    private Long guildId;
+    private String guildName;
 }

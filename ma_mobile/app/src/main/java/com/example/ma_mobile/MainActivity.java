@@ -70,18 +70,21 @@ public class MainActivity extends AppCompatActivity {
                 loadTasksFragment();
                 updateToolbarTitle("Tasks");
                 return true;
-            } else if (itemId == R.id.nav_categories) {
-                loadCategoriesFragment();
-                updateToolbarTitle("Categories");
+//            } else if (itemId == R.id.nav_categories) {
+//                loadCategoriesFragment();
+//                updateToolbarTitle("Categories");
+            } else if (itemId == R.id.nav_community) {
+                loadCommunityFragment();
+                updateToolbarTitle("Community");
                 return true;
-            } else if (itemId == R.id.nav_notifications) {
-                loadNotificationsFragment();
-                updateToolbarTitle("Notifications");
-                return true;
-            } else if (itemId == R.id.nav_account) {
-                loadAccountFragment();
-                updateToolbarTitle("Account");
-                return true;
+//            } else if (itemId == R.id.nav_notifications) {
+//                loadNotificationsFragment();
+//                updateToolbarTitle("Notifications");
+//                return true;
+//            } else if (itemId == R.id.nav_account) {
+//                loadAccountFragment();
+//                updateToolbarTitle("Account");
+//                return true;
             }
 
             return false;
@@ -111,6 +114,11 @@ public class MainActivity extends AppCompatActivity {
     private void loadAccountFragment() {
         AccountFragment fragment = AccountFragment.newInstance(userEmail);
         loadFragment(fragment, "AccountFragment");
+    }
+
+    private void loadCommunityFragment() {
+        CommunityFragment fragment = CommunityFragment.newInstance();
+        loadFragment(fragment, "CommunityFragment");
     }
 
     private void loadFragment(Fragment fragment, String tag) {
