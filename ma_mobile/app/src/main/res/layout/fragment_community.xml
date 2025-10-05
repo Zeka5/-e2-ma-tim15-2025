@@ -10,36 +10,55 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="16dp">
 
-        <Button
-            android:id="@+id/btn_search_users"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Search Users"
-            android:textAllCaps="false"
-            android:drawableTop="@android:drawable/ic_menu_search"
-            android:drawablePadding="8dp"
-            android:padding="16dp"
-            app:cornerRadius="12dp"
-            android:layout_marginEnd="8dp"
-            android:backgroundTint="#2196F3" />
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_search_users"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Search Users"
+                android:textAllCaps="false"
+                android:drawableTop="@android:drawable/ic_menu_search"
+                android:drawablePadding="8dp"
+                android:padding="16dp"
+                app:cornerRadius="12dp"
+                android:layout_marginEnd="8dp"
+                android:backgroundTint="#2196F3" />
+
+            <Button
+                android:id="@+id/btn_pending_requests"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Pending Requests"
+                android:textAllCaps="false"
+                android:drawableTop="@android:drawable/ic_popup_reminder"
+                android:drawablePadding="8dp"
+                android:padding="16dp"
+                app:cornerRadius="12dp"
+                android:layout_marginStart="8dp"
+                android:backgroundTint="#FF9800" />
+        </LinearLayout>
 
         <Button
-            android:id="@+id/btn_pending_requests"
-            android:layout_width="0dp"
+            android:id="@+id/btn_scan_qr"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Pending Requests"
+            android:text="Scan QR Code"
             android:textAllCaps="false"
-            android:drawableTop="@android:drawable/ic_popup_reminder"
+            android:drawableTop="@android:drawable/ic_menu_camera"
             android:drawablePadding="8dp"
             android:padding="16dp"
             app:cornerRadius="12dp"
-            android:layout_marginStart="8dp"
-            android:backgroundTint="#FF9800" />
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#4CAF50" />
     </LinearLayout>
 
     <!-- Friends Section Header -->

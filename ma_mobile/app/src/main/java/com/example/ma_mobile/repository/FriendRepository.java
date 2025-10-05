@@ -55,8 +55,8 @@ public class FriendRepository {
                     Log.d(TAG, "Friend request sent successfully");
                     callback.onSuccess(response.body());
                 } else {
-                    String errorMessage = "Failed to send friend request: " + response.code();
-                    Log.e(TAG, errorMessage);
+                    String errorMessage = getErrorMessageByCode(response.code());
+                    Log.e(TAG, "Error " + response.code() + ": " + errorMessage);
                     callback.onError(errorMessage);
                 }
             }
@@ -68,6 +68,19 @@ public class FriendRepository {
                 callback.onError(errorMessage);
             }
         });
+    }
+
+    private String getErrorMessageByCode(int code) {
+        switch (code) {
+            case 400:
+                return "Already friends or friend request pending";
+            case 404:
+                return "User not found";
+            case 409:
+                return "Friend request already exists";
+            default:
+                return "Failed to send friend request";
+        }
     }
 
     // Get pending requests (sent by current user)
