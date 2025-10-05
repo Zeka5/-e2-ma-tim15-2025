@@ -1,5 +1,6 @@
 package com.example.ma_mobile;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.ma_mobile.models.PublicUserProfile;
+import com.example.ma_mobile.utils.QRCodeGenerator;
 
 public class UserProfileFragment extends Fragment {
 
@@ -28,6 +30,7 @@ public class UserProfileFragment extends Fragment {
     private TextView tvXp;
     private TextView tvBadgeCount;
     private TextView tvBadgesPlaceholder;
+    private ImageView ivQrCode;
     private ProgressBar progressBar;
 
     private PublicUserProfile userProfile;
@@ -77,6 +80,7 @@ public class UserProfileFragment extends Fragment {
         tvXp = view.findViewById(R.id.tv_xp);
         tvBadgeCount = view.findViewById(R.id.tv_badge_count);
         tvBadgesPlaceholder = view.findViewById(R.id.tv_badges_placeholder);
+        ivQrCode = view.findViewById(R.id.iv_qr_code);
         progressBar = view.findViewById(R.id.progress_bar);
     }
 
@@ -126,6 +130,14 @@ public class UserProfileFragment extends Fragment {
         } else {
             tvBadgeCount.setText("0");
             tvBadgesPlaceholder.setVisibility(View.VISIBLE);
+        }
+
+        // Generate and display QR code
+        if (profile.getId() != null) {
+            Bitmap qrBitmap = QRCodeGenerator.generateQRCodeForUser(profile.getId());
+            if (qrBitmap != null) {
+                ivQrCode.setImageBitmap(qrBitmap);
+            }
         }
     }
 
