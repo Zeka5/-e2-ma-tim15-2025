@@ -49,4 +49,9 @@ public class User {
     )
     @JsonIgnore
     private Set<User> friends = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "guild_id")
+    @JsonIgnore
+    private Guild currentGuild;
 }

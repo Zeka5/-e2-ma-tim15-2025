@@ -25,6 +25,15 @@ public class User {
     @SerializedName("gameStats")
     private UserGameStats gameStats;
 
+    @SerializedName("currentGuild")
+    private Guild currentGuild;
+
+    @SerializedName("guildId")
+    private Long guildId;
+
+    @SerializedName("guildName")
+    private String guildName;
+
     public User() {
     }
 
@@ -87,6 +96,30 @@ public class User {
 
     public void setGameStats(UserGameStats gameStats) {
         this.gameStats = gameStats;
+    }
+
+    public Guild getCurrentGuild() {
+        return currentGuild;
+    }
+
+    public void setCurrentGuild(Guild currentGuild) {
+        this.currentGuild = currentGuild;
+    }
+
+    public Long getGuildId() {
+        return guildId;
+    }
+
+    public void setGuildId(Long guildId) {
+        this.guildId = guildId;
+    }
+
+    public String getGuildName() {
+        return guildName;
+    }
+
+    public void setGuildName(String guildName) {
+        this.guildName = guildName;
     }
 
     public int getAvatarDrawableId() {

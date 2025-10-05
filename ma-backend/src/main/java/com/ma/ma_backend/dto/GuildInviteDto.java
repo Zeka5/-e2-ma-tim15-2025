@@ -6,23 +6,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserDto {
+public class GuildInviteDto {
     private Long id;
-    private String username;
-    private String email;
-    private String password;
-    private String role;
-    private Integer avatarId;
-
+    private GuildDto guild;
+    private UserDto sender;
+    private UserDto receiver;
+    private String status;
     private LocalDateTime createdAt;
-
-    private UserGameStatsDto gameStats;
-    private Long guildId;
-    private String guildName;
+    private LocalDateTime respondedAt;
 }

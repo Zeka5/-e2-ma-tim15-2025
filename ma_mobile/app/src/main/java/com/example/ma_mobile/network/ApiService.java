@@ -1,6 +1,8 @@
 package com.example.ma_mobile.network;
 
 import com.example.ma_mobile.models.FriendRequest;
+import com.example.ma_mobile.models.Guild;
+import com.example.ma_mobile.models.GuildInvite;
 import com.example.ma_mobile.models.PublicUserProfile;
 import com.example.ma_mobile.models.User;
 import com.example.ma_mobile.models.auth.AuthResponse;
@@ -56,4 +58,35 @@ public interface ApiService {
 
     @DELETE("api/friends/{friendId}")
     Call<Void> removeFriend(@Path("friendId") Long friendId);
+
+    // Guild endpoints
+    @POST("api/guilds")
+    Call<Guild> createGuild(@Query("name") String name);
+
+    @GET("api/guilds")
+    Call<List<Guild>> getAllGuilds();
+
+    @GET("api/guilds/search")
+    Call<List<Guild>> searchGuilds(@Query("name") String name);
+
+    @GET("api/guilds/{guildId}")
+    Call<Guild> getGuildById(@Path("guildId") Long guildId);
+
+    @DELETE("api/guilds/{guildId}")
+    Call<Void> deleteGuild(@Path("guildId") Long guildId);
+
+    @POST("api/guilds/{guildId}/invite/{userId}")
+    Call<GuildInvite> inviteToGuild(@Path("guildId") Long guildId, @Path("userId") Long userId);
+
+    @POST("api/guilds/invites/{inviteId}/accept")
+    Call<GuildInvite> acceptGuildInvite(@Path("inviteId") Long inviteId);
+
+    @DELETE("api/guilds/invites/{inviteId}/reject")
+    Call<Void> rejectGuildInvite(@Path("inviteId") Long inviteId);
+
+    @GET("api/guilds/invites/pending")
+    Call<List<GuildInvite>> getPendingGuildInvites();
+
+    @POST("api/guilds/leave")
+    Call<Void> leaveGuild();
 }

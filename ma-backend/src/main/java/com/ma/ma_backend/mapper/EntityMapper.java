@@ -26,6 +26,11 @@ public class EntityMapper {
             userDto.setGameStats(userGameStatsToDto(user.getGameStats()));
         }
 
+        if (user.getCurrentGuild() != null) {
+            userDto.setGuildId(user.getCurrentGuild().getId());
+            userDto.setGuildName(user.getCurrentGuild().getName());
+        }
+
         return userDto;
     }
 
