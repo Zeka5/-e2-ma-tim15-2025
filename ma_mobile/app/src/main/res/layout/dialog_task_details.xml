@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_rounded_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Dialog Title -->
+        <TextView
+            android:id="@+id/tv_dialog_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Task Details"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"/>
+
+        <!-- Task Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Title"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_task_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Category -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Category"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            android:layout_marginTop="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <View
+                android:id="@+id/view_category_color"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/tv_category_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="#000000"/>
+
+        </LinearLayout>
+
+        <!-- Description -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Description"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_task_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#424242"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Difficulty -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Difficulty"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_task_difficulty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#FF5722"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Importance -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Importance"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_task_importance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#2196F3"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- XP -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Experience Points"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_task_xp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#9C27B0"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Status -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Status"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_task_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Start Date -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start Date"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_task_start_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#424242"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- End Date (for repeating tasks) -->
+        <TextView
+            android:id="@+id/label_end_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="End Date"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/tv_task_end_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#424242"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"/>
+
+        <!-- Recurrence Info -->
+        <TextView
+            android:id="@+id/label_recurrence"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Recurrence"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/tv_task_recurrence"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#424242"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"/>
+
+        <!-- Task Instances (for repeating tasks) -->
+        <TextView
+            android:id="@+id/label_instances"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Task Occurrences"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/ll_task_instances"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"/>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E0E0E0"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btn_complete_task"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Complete"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#4CAF50"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btn_edit_task"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Edit"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#2196F3"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btn_delete_task"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Delete"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#F44336"/>
+
+        </LinearLayout>
+
+        <!-- Close Button -->
+        <Button
+            android:id="@+id/btn_close"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Close"
+            android:textColor="#757575"
+            android:backgroundTint="#E0E0E0"
+            android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
+
+</ScrollView>

@@ -7,18 +7,13 @@
         android:title="@string/nav_home" />
 
     <item
+        android:id="@+id/nav_tasks"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="Tasks" />
+
+    <item
         android:id="@+id/nav_community"
         android:icon="@android:drawable/ic_menu_search"
         android:title="Community" />
-
-    <item
-        android:id="@+id/nav_notifications"
-        android:icon="@android:drawable/ic_popup_reminder"
-        android:title="@string/nav_notifications" />
-
-    <item
-        android:id="@+id/nav_account"
-        android:icon="@android:drawable/ic_menu_manage"
-        android:title="@string/nav_account" />
 
 </menu>
