@@ -1,11 +1,7 @@
 package com.ma.ma_backend.mapper;
 
-import com.ma.ma_backend.domain.Badge;
-import com.ma.ma_backend.domain.User;
-import com.ma.ma_backend.domain.UserGameStats;
-import com.ma.ma_backend.dto.BadgeDto;
-import com.ma.ma_backend.dto.UserDto;
-import com.ma.ma_backend.dto.UserGameStatsDto;
+import com.ma.ma_backend.domain.*;
+import com.ma.ma_backend.dto.*;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -45,5 +41,60 @@ public class EntityMapper {
         dto.setDescription(badge.getDescription());
         dto.setIconUrl(badge.getIconUrl());
         return dto;
+    }
+
+    public CategoryDto categoryToDto(Category category) {
+        return CategoryDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .color(category.getColor())
+                .userId(category.getUser().getId())
+                .createdAt(category.getCreatedAt())
+                .updatedAt(category.getUpdatedAt())
+                .build();
+    }
+
+    public TaskDto taskToDto(Task task) {
+        return TaskDto.builder()
+                .id(task.getId())
+                .title(task.getTitle())
+                .description(task.getDescription())
+                .categoryId(task.getCategory().getId())
+                .categoryName(task.getCategory().getName())
+                .categoryColor(task.getCategory().getColor())
+                .userId(task.getUser().getId())
+                .difficulty(task.getDifficulty().name())
+                .importance(task.getImportance().name())
+                .totalXp(task.getTotalXp())
+                .isRecurring(task.getIsRepeating())
+                .recurrenceInterval(task.getRecurrenceInterval())
+                .recurrenceUnit(task.getRecurrenceUnit() != null ? task.getRecurrenceUnit().name() : null)
+                .startDate(task.getStartDate())
+                .endDate(task.getEndDate())
+                .createdAt(task.getCreatedAt())
+                .updatedAt(task.getUpdatedAt())
+                .build();
+    }
+
+    public TaskInstanceDto taskInstanceToDto(TaskInstance taskInstance) {
+        Task task = taskInstance.getTask();
+        return TaskInstanceDto.builder()
+                .id(taskInstance.getId())
+                .taskId(task.getId())
+                .taskTitle(task.getTitle())
+                .taskDescription(task.getDescription())
+                .categoryId(task.getCategory().getId())
+                .categoryName(task.getCategory().getName())
+                .categoryColor(task.getCategory().getColor())
+                .difficulty(task.getDifficulty().name())
+                .importance(task.getImportance().name())
+                .status(taskInstance.getStatus().name())
+                .startDate(taskInstance.getStartDate())
+                .completedAt(taskInstance.getCompletedAt())
+                .xpAwarded(taskInstance.getXpAwarded())
+                .xpAmount(taskInstance.getXpAmount())
+                .createdAt(taskInstance.getCreatedAt())
+                .updatedAt(taskInstance.getUpdatedAt())
+                .build();
     }
 }

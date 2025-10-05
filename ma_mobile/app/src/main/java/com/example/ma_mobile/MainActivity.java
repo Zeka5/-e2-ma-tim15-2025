@@ -66,7 +66,15 @@ public class MainActivity extends AppCompatActivity {
                 loadHomeFragment();
                 updateToolbarTitle("Home");
                 return true;
-            }else if (itemId == R.id.nav_notifications) {
+            } else if (itemId == R.id.nav_tasks) {
+                loadTasksFragment();
+                updateToolbarTitle("Tasks");
+                return true;
+            } else if (itemId == R.id.nav_categories) {
+                loadCategoriesFragment();
+                updateToolbarTitle("Categories");
+                return true;
+            } else if (itemId == R.id.nav_notifications) {
                 loadNotificationsFragment();
                 updateToolbarTitle("Notifications");
                 return true;
@@ -83,6 +91,16 @@ public class MainActivity extends AppCompatActivity {
     private void loadHomeFragment() {
         HomeFragment fragment = HomeFragment.newInstance(userEmail);
         loadFragment(fragment, "HomeFragment");
+    }
+
+    private void loadTasksFragment() {
+        TasksFragment fragment = new TasksFragment();
+        loadFragment(fragment, "TasksFragment");
+    }
+
+    private void loadCategoriesFragment() {
+        CategoriesFragment fragment = new CategoriesFragment();
+        loadFragment(fragment, "CategoriesFragment");
     }
 
     private void loadNotificationsFragment() {
