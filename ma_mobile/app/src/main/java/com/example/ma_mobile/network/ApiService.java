@@ -4,6 +4,7 @@ import com.example.ma_mobile.models.Category;
 import com.example.ma_mobile.models.CreateCategoryRequest;
 import com.example.ma_mobile.models.CreateTaskRequest;
 import com.example.ma_mobile.models.Task;
+import com.example.ma_mobile.models.TaskInstance;
 import com.example.ma_mobile.models.UpdateCategoryRequest;
 import com.example.ma_mobile.models.User;
 import com.example.ma_mobile.models.auth.AuthResponse;
@@ -72,4 +73,14 @@ public interface ApiService {
 
     @DELETE("tasks/{id}")
     Call<Void> deleteTask(@Path("id") Long id);
+
+    // Task Instance endpoints
+    @GET("task-instances/task/{taskId}")
+    Call<List<TaskInstance>> getTaskInstances(@Path("taskId") Long taskId);
+
+    @PUT("task-instances/{id}/complete")
+    Call<TaskInstance> completeTaskInstance(@Path("id") Long id);
+
+    @DELETE("task-instances/{id}")
+    Call<Void> deleteTaskInstance(@Path("id") Long id);
 }

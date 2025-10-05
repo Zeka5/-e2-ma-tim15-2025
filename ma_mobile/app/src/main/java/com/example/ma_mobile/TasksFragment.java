@@ -16,9 +16,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.ma_mobile.models.Task;
+import com.example.ma_mobile.models.TaskInstance;
 import com.example.ma_mobile.repository.TaskRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TasksFragment extends Fragment {
@@ -26,7 +29,12 @@ public class TasksFragment extends Fragment {
     private LinearLayout llTasksList;
     private TextView tvNoTasks;
     private FloatingActionButton fabAddTask;
+    private FloatingActionButton fabCalendar;
+    private TabLayout tabLayout;
     private TaskRepository taskRepository;
+
+    private List<Task> allTasks = new ArrayList<>();
+    private boolean showingRepeatingTasks = false;
 
     public TasksFragment() {
         // Required empty public constructor
@@ -56,27 +64,68 @@ public class TasksFragment extends Fragment {
         llTasksList = view.findViewById(R.id.ll_tasks_list);
         tvNoTasks = view.findViewById(R.id.tv_no_tasks);
         fabAddTask = view.findViewById(R.id.fab_add_task);
+        fabCalendar = view.findViewById(R.id.fab_calendar);
+        tabLayout = view.findViewById(R.id.tab_layout);
 
         fabAddTask.setOnClickListener(v -> openAddTaskDialog());
+        fabCalendar.setOnClickListener(v -> openCalendar());
+
+        setupTabLayout();
+    }
+
+    private void setupTabLayout() {
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                showingRepeatingTasks = tab.getPosition() == 1;
+                filterAndDisplayTasks();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
+        });
     }
 
     private void loadTasks() {
         taskRepository.getAllTasks(new TaskRepository.TaskListCallback() {
             @Override
             public void onSuccess(List<Task> tasks) {
-                if (tasks.isEmpty()) {
-                    showNoTasks();
-                } else {
-                    displayTasks(tasks);
-                }
+                allTasks = tasks;
+                filterAndDisplayTasks();
             }
 
             @Override
             public void onError(String error) {
                 Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
-                showNoTasks();
+                allTasks = new ArrayList<>();
+                filterAndDisplayTasks();
             }
         });
+    }
+
+    private void filterAndDisplayTasks() {
+        List<Task> filteredTasks = new ArrayList<>();
+
+        for (Task task : allTasks) {
+            boolean isRepeating = task.getIsRecurring() != null && task.getIsRecurring();
+
+            if (showingRepeatingTasks && isRepeating) {
+                filteredTasks.add(task);
+            } else if (!showingRepeatingTasks && !isRepeating) {
+                filteredTasks.add(task);
+            }
+        }
+
+        if (filteredTasks.isEmpty()) {
+            showNoTasks();
+        } else {
+            displayTasks(filteredTasks);
+        }
     }
 
     private void showNoTasks() {
@@ -224,7 +273,7 @@ public class TasksFragment extends Fragment {
         itemLayout.addView(infoLayout);
 
         // Click listeners
-        itemLayout.setOnClickListener(v -> openEditTaskDialog(task));
+        itemLayout.setOnClickListener(v -> openTaskDetailsDialog(task));
         itemLayout.setOnLongClickListener(v -> {
             showTaskOptions(task);
             return true;
@@ -264,6 +313,22 @@ public class TasksFragment extends Fragment {
         dialog.show();
     }
 
+    private void openTaskDetailsDialog(Task task) {
+        TaskDetailsDialog dialog = new TaskDetailsDialog(requireContext(), task,
+                new TaskDetailsDialog.TaskDetailsListener() {
+                    @Override
+                    public void onTaskUpdated() {
+                        loadTasks();
+                    }
+
+                    @Override
+                    public void onTaskDeleted() {
+                        loadTasks();
+                    }
+                });
+        dialog.show();
+    }
+
     private void openEditTaskDialog(Task task) {
         AddEditTaskDialog dialog = new AddEditTaskDialog(requireContext(), task,
                 new AddEditTaskDialog.TaskDialogListener() {
@@ -297,16 +362,56 @@ public class TasksFragment extends Fragment {
     }
 
     private void completeTask(Task task) {
-        taskRepository.completeTask(task.getId(), new TaskRepository.TaskCallback() {
+        // Load task instances and complete the first pending one
+        taskRepository.getTaskInstances(task.getId(), new TaskRepository.TaskInstanceListCallback() {
             @Override
-            public void onSuccess(Task task) {
-                Toast.makeText(requireContext(), "Task completed! +" + task.getTotalXp() + " XP", Toast.LENGTH_SHORT).show();
+            public void onSuccess(List<TaskInstance> instances) {
+                if (instances.isEmpty()) {
+                    Toast.makeText(requireContext(), "No task instances found", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Find first pending/active instance
+                TaskInstance pendingInstance = null;
+                for (TaskInstance instance : instances) {
+                    String status = instance.getStatus();
+                    if (status == null || status.equals("PENDING") || status.equals("ACTIVE")) {
+                        pendingInstance = instance;
+                        break;
+                    }
+                }
+
+                if (pendingInstance != null) {
+                    completeTaskInstance(pendingInstance);
+                } else {
+                    Toast.makeText(requireContext(), "No pending tasks to complete", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(requireContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void completeTaskInstance(TaskInstance instance) {
+        taskRepository.completeTaskInstance(instance.getId(), new TaskRepository.TaskInstanceCallback() {
+            @Override
+            public void onSuccess(TaskInstance completedInstance) {
+                String message;
+                if (completedInstance.getXpAwarded() != null && completedInstance.getXpAwarded()) {
+                    message = "Task completed! +" + completedInstance.getXpAmount() + " XP";
+                } else {
+                    message = "Task completed! (Daily XP quota reached - no XP awarded)";
+                }
+                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
                 loadTasks();
             }
 
             @Override
             public void onError(String error) {
-                Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -333,5 +438,14 @@ public class TasksFragment extends Fragment {
                 Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void openCalendar() {
+        CalendarFragment calendarFragment = new CalendarFragment();
+
+        getParentFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, calendarFragment, "CalendarFragment")
+                .addToBackStack(null)
+                .commit();
     }
 }

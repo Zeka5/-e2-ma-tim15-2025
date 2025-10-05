@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.ma_mobile.models.CreateTaskRequest;
 import com.example.ma_mobile.models.Task;
+import com.example.ma_mobile.models.TaskInstance;
 import com.example.ma_mobile.network.ApiService;
 import com.example.ma_mobile.network.RetrofitClient;
 
@@ -36,6 +37,16 @@ public class TaskRepository {
 
     public interface DeleteCallback {
         void onSuccess();
+        void onError(String error);
+    }
+
+    public interface TaskInstanceListCallback {
+        void onSuccess(List<TaskInstance> instances);
+        void onError(String error);
+    }
+
+    public interface TaskInstanceCallback {
+        void onSuccess(TaskInstance instance);
         void onError(String error);
     }
 
@@ -200,6 +211,81 @@ public class TaskRepository {
                     callback.onSuccess();
                 } else {
                     String errorMessage = "Failed to delete task: " + response.code();
+                    Log.e(TAG, errorMessage);
+                    callback.onError(errorMessage);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                String errorMessage = "Network error: " + t.getMessage();
+                Log.e(TAG, errorMessage, t);
+                callback.onError(errorMessage);
+            }
+        });
+    }
+
+    public void getTaskInstances(Long taskId, TaskInstanceListCallback callback) {
+        Call<List<TaskInstance>> call = apiService.getTaskInstances(taskId);
+
+        call.enqueue(new Callback<List<TaskInstance>>() {
+            @Override
+            public void onResponse(Call<List<TaskInstance>> call, Response<List<TaskInstance>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Task instances fetched successfully: " + response.body().size());
+                    callback.onSuccess(response.body());
+                } else {
+                    String errorMessage = "Failed to fetch task instances: " + response.code();
+                    Log.e(TAG, errorMessage);
+                    callback.onError(errorMessage);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<TaskInstance>> call, Throwable t) {
+                String errorMessage = "Network error: " + t.getMessage();
+                Log.e(TAG, errorMessage, t);
+                callback.onError(errorMessage);
+            }
+        });
+    }
+
+    public void completeTaskInstance(Long instanceId, TaskInstanceCallback callback) {
+        Call<TaskInstance> call = apiService.completeTaskInstance(instanceId);
+
+        call.enqueue(new Callback<TaskInstance>() {
+            @Override
+            public void onResponse(Call<TaskInstance> call, Response<TaskInstance> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Task instance completed successfully");
+                    callback.onSuccess(response.body());
+                } else {
+                    String errorMessage = "Failed to complete task instance: " + response.code();
+                    Log.e(TAG, errorMessage);
+                    callback.onError(errorMessage);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TaskInstance> call, Throwable t) {
+                String errorMessage = "Network error: " + t.getMessage();
+                Log.e(TAG, errorMessage, t);
+                callback.onError(errorMessage);
+            }
+        });
+    }
+
+    public void deleteTaskInstance(Long instanceId, DeleteCallback callback) {
+        Call<Void> call = apiService.deleteTaskInstance(instanceId);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.d(TAG, "Task instance deleted successfully");
+                    callback.onSuccess();
+                } else {
+                    String errorMessage = "Failed to delete task instance: " + response.code();
                     Log.e(TAG, errorMessage);
                     callback.onError(errorMessage);
                 }

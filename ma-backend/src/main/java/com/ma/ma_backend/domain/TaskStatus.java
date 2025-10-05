@@ -1,6 +1,7 @@
 package com.ma.ma_backend.domain;
 
-public enum TaskStatus {
+public enum
+TaskStatus {
     ACTIVE,
     COMPLETED,
     CANCELLED

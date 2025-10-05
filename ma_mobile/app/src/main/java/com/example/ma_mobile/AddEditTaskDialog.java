@@ -93,6 +93,7 @@ public class AddEditTaskDialog extends Dialog {
 
         if (task != null) {
             populateTaskData();
+            lockEditModeFields();
         }
     }
 
@@ -151,6 +152,16 @@ public class AddEditTaskDialog extends Dialog {
                         android.R.layout.simple_spinner_item, categoryNames);
                 categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spinnerCategory.setAdapter(categoryAdapter);
+
+                // Set category if editing task
+                if (task != null && task.getCategoryId() != null) {
+                    for (int i = 0; i < categories.size(); i++) {
+                        if (categories.get(i).getId().equals(task.getCategoryId())) {
+                            spinnerCategory.setSelection(i);
+                            break;
+                        }
+                    }
+                }
             }
 
             @Override
@@ -328,6 +339,93 @@ public class AddEditTaskDialog extends Dialog {
     }
 
     private void populateTaskData() {
-        // TODO: Implement when editing existing task
+        TextView tvDialogTitle = findViewById(R.id.tv_dialog_title);
+        tvDialogTitle.setText("Edit Task");
+
+        etTaskTitle.setText(task.getTitle());
+        etTaskDescription.setText(task.getDescription());
+
+        // Set difficulty
+        int difficultyPosition = getDifficultyPosition(task.getDifficulty());
+        spinnerDifficulty.setSelection(difficultyPosition);
+
+        // Set importance
+        int importancePosition = getImportancePosition(task.getImportance());
+        spinnerImportance.setSelection(importancePosition);
+
+        // Set category (will be set after categories are loaded)
+        // Set recurring checkbox
+        if (task.getIsRecurring() != null && task.getIsRecurring()) {
+            cbRepeating.setChecked(true);
+            if (task.getRecurrenceInterval() != null) {
+                etRepeatInterval.setText(String.valueOf(task.getRecurrenceInterval()));
+            }
+            if (task.getRecurrenceUnit() != null) {
+                spinnerRepeatUnit.setSelection(task.getRecurrenceUnit().equals("DAY") ? 0 : 1);
+            }
+        }
+
+        // Parse and set dates
+        try {
+            if (task.getStartDate() != null && !task.getStartDate().isEmpty()) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    startDateTime = LocalDateTime.parse(task.getStartDate());
+                    btnSelectStartDate.setText(formatDateTime(startDateTime));
+                }
+            }
+
+            if (task.getEndDate() != null && !task.getEndDate().isEmpty()) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    endDateTime = LocalDateTime.parse(task.getEndDate());
+                    if (task.getIsRecurring() != null && task.getIsRecurring()) {
+                        btnSelectEndDateRepeat.setText(formatDateTime(endDateTime));
+                    } else {
+                        btnSelectEndDateSingle.setText(formatDateTime(endDateTime));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void lockEditModeFields() {
+        // Disable category selection
+        spinnerCategory.setEnabled(false);
+        spinnerCategory.setAlpha(0.5f);
+
+        // Disable start date only (end date can be changed)
+        btnSelectStartDate.setEnabled(false);
+        btnSelectStartDate.setAlpha(0.5f);
+
+        // Disable repeating checkbox and interval
+        cbRepeating.setEnabled(false);
+        cbRepeating.setAlpha(0.5f);
+        etRepeatInterval.setEnabled(false);
+        etRepeatInterval.setAlpha(0.5f);
+        spinnerRepeatUnit.setEnabled(false);
+        spinnerRepeatUnit.setAlpha(0.5f);
+    }
+
+    private int getDifficultyPosition(String difficulty) {
+        if (difficulty == null) return 1;
+        switch (difficulty) {
+            case "VERY_EASY": return 0;
+            case "EASY": return 1;
+            case "HARD": return 2;
+            case "EXTREMELY_HARD": return 3;
+            default: return 1;
+        }
+    }
+
+    private int getImportancePosition(String importance) {
+        if (importance == null) return 0;
+        switch (importance) {
+            case "NORMAL": return 0;
+            case "IMPORTANT": return 1;
+            case "EXTREMELY_IMPORTANT": return 2;
+            case "SPECIAL": return 3;
+            default: return 0;
+        }
     }
 }
