@@ -30,6 +30,7 @@ public class CommunityFragment extends Fragment implements FriendsAdapter.OnFrie
     private Button btnSearchUsers;
     private Button btnPendingRequests;
     private Button btnScanQr;
+    private Button btnGuilds;
     private TextView tvFriendsCount;
     private RecyclerView rvFriends;
     private LinearLayout llEmptyState;
@@ -72,6 +73,7 @@ public class CommunityFragment extends Fragment implements FriendsAdapter.OnFrie
         btnSearchUsers = view.findViewById(R.id.btn_search_users);
         btnPendingRequests = view.findViewById(R.id.btn_pending_requests);
         btnScanQr = view.findViewById(R.id.btn_scan_qr);
+        btnGuilds = view.findViewById(R.id.btn_guilds);
         tvFriendsCount = view.findViewById(R.id.tv_friends_count);
         rvFriends = view.findViewById(R.id.rv_friends);
         llEmptyState = view.findViewById(R.id.ll_empty_state);
@@ -88,6 +90,7 @@ public class CommunityFragment extends Fragment implements FriendsAdapter.OnFrie
         btnSearchUsers.setOnClickListener(v -> navigateToSearchUsers());
         btnPendingRequests.setOnClickListener(v -> navigateToPendingRequests());
         btnScanQr.setOnClickListener(v -> navigateToQRScanner());
+        btnGuilds.setOnClickListener(v -> navigateToGuilds());
     }
 
     private void loadFriends() {
@@ -153,6 +156,17 @@ public class CommunityFragment extends Fragment implements FriendsAdapter.OnFrie
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, qrScannerFragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
+
+    private void navigateToGuilds() {
+        if (getActivity() != null) {
+            GuildsFragment guildsFragment = GuildsFragment.newInstance();
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, guildsFragment)
                     .addToBackStack(null)
                     .commit();
         }

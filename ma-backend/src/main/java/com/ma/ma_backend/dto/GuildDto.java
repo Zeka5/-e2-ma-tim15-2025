@@ -12,17 +12,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserDto {
+public class GuildDto {
     private Long id;
-    private String username;
-    private String email;
-    private String password;
-    private String role;
-    private Integer avatarId;
-
+    private String name;
+    private UserDto leader;
+    private List<UserDto> members;
+    private Boolean hasActiveMission;
     private LocalDateTime createdAt;
-
-    private UserGameStatsDto gameStats;
-    private Long guildId;
-    private String guildName;
 }
