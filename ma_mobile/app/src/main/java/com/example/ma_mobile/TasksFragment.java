@@ -30,6 +30,7 @@ public class TasksFragment extends Fragment {
     private TextView tvNoTasks;
     private FloatingActionButton fabAddTask;
     private FloatingActionButton fabCalendar;
+    private FloatingActionButton fabAddCategory;
     private TabLayout tabLayout;
     private TaskRepository taskRepository;
 
@@ -65,10 +66,12 @@ public class TasksFragment extends Fragment {
         tvNoTasks = view.findViewById(R.id.tv_no_tasks);
         fabAddTask = view.findViewById(R.id.fab_add_task);
         fabCalendar = view.findViewById(R.id.fab_calendar);
+        fabAddCategory = view.findViewById(R.id.fab_add_category);
         tabLayout = view.findViewById(R.id.tab_layout);
 
         fabAddTask.setOnClickListener(v -> openAddTaskDialog());
         fabCalendar.setOnClickListener(v -> openCalendar());
+        fabAddCategory.setOnClickListener(v -> openCategoriesPage());
 
         setupTabLayout();
     }
@@ -445,6 +448,15 @@ public class TasksFragment extends Fragment {
 
         getParentFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, calendarFragment, "CalendarFragment")
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void openCategoriesPage() {
+        CategoriesFragment categoriesFragment = new CategoriesFragment();
+
+        getParentFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, categoriesFragment, "CategoriesFragment")
                 .addToBackStack(null)
                 .commit();
     }

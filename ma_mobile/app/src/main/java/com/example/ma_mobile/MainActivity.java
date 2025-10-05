@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageButton;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -15,6 +16,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private BottomNavigationView bottomNavigation;
+    private ImageButton btnNotifications;
+    private ImageButton btnAccount;
 
     private String userEmail;
 
@@ -45,12 +48,19 @@ public class MainActivity extends AppCompatActivity {
     private void initializeViews() {
         toolbar = findViewById(R.id.toolbar);
         bottomNavigation = findViewById(R.id.bottom_navigation);
+        btnNotifications = toolbar.findViewById(R.id.btn_notifications);
+        btnAccount = toolbar.findViewById(R.id.btn_account);
     }
 
     private void setupToolbar() {
         setSupportActionBar(toolbar);
 
-        updateToolbarTitle("Home");
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
+
+        btnNotifications.setOnClickListener(v -> loadNotificationsFragment());
+        btnAccount.setOnClickListener(v -> loadAccountFragment());
     }
     private void updateToolbarTitle(String title) {
         if (getSupportActionBar() != null) {
@@ -64,18 +74,14 @@ public class MainActivity extends AppCompatActivity {
 
             if (itemId == R.id.nav_home) {
                 loadHomeFragment();
-                updateToolbarTitle("Home");
                 return true;
             } else if (itemId == R.id.nav_tasks) {
                 loadTasksFragment();
-                updateToolbarTitle("Tasks");
                 return true;
 //            } else if (itemId == R.id.nav_categories) {
 //                loadCategoriesFragment();
-//                updateToolbarTitle("Categories");
             } else if (itemId == R.id.nav_community) {
                 loadCommunityFragment();
-                updateToolbarTitle("Community");
                 return true;
 //            } else if (itemId == R.id.nav_notifications) {
 //                loadNotificationsFragment();
