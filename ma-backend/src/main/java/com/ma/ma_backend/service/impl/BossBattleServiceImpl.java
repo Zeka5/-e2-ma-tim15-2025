@@ -30,7 +30,7 @@ public class BossBattleServiceImpl implements BossBattleService {
     private final Random random = new Random();
 
     private static final int MAX_ATTACKS = 5;
-    private static final double EQUIPMENT_DROP_CHANCE = 0.20; // 20%
+    private static final double EQUIPMENT_DROP_CHANCE = 1.0; // 100% (for testing)
     private static final double WEAPON_DROP_CHANCE = 0.05; // 5% of equipment drops
     private static final double CLOTHING_DROP_CHANCE = 0.95; // 95% of equipment drops
     private static final double HALF_REWARD_HP_THRESHOLD = 0.50; // 50% HP remaining
@@ -39,6 +39,15 @@ public class BossBattleServiceImpl implements BossBattleService {
     @Transactional(readOnly = true)
     public BossDto getNextBoss(Long userId) {
         UserGameStats userGameStats = getUserGameStats(userId);
+
+        // Check if user has max XP for current level
+        int currentLevel = userGameStats.getLevel();
+        int currentXp = userGameStats.getExperiencePoints();
+        int maxXpForLevel = calculateRequiredXpForLevel(currentLevel);
+
+        if (currentXp < maxXpForLevel) {
+            throw new IllegalStateException("Boss not available. Need " + maxXpForLevel + " XP to challenge boss.");
+        }
 
         // Check for pending bosses first
         List<UserBossProgress> pendingBosses = userBossProgressRepository
@@ -137,6 +146,11 @@ public class BossBattleServiceImpl implements BossBattleService {
             applyRewards(userGameStats, battle, rewards);
             markBossAsDefeated(userGameStats, battle.getBoss());
 
+            // Level up only if boss level matches current user level (ensures one-time level up)
+            if (battle.getBoss().getLevel().equals(userGameStats.getLevel())) {
+                performLevelUp(userGameStats);
+            }
+
         } else if (battle.getAttacksUsed() >= MAX_ATTACKS) {
             // Out of attacks
             battleComplete = true;
@@ -149,6 +163,11 @@ public class BossBattleServiceImpl implements BossBattleService {
                 battle.setCompletedAt(LocalDateTime.now());
                 rewards = calculateRewards(battle, false);
                 applyRewards(userGameStats, battle, rewards);
+
+                // Level up even on loss if boss was brought below 50% HP
+                if (battle.getBoss().getLevel().equals(userGameStats.getLevel())) {
+                    performLevelUp(userGameStats);
+                }
             } else {
                 // Failed to get boss below 50% HP - no rewards
                 battleResult = "LOST";
@@ -215,29 +234,61 @@ public class BossBattleServiceImpl implements BossBattleService {
     @Override
     @Transactional
     public void onLevelComplete(Long userId, Integer newLevel) {
+        System.out.println("===== onLevelComplete DEBUG =====");
+        System.out.println("User ID: " + userId);
+        System.out.println("New Level: " + newLevel);
+
         UserGameStats userGameStats = getUserGameStats(userId);
+        System.out.println("UserGameStats ID: " + userGameStats.getId());
 
         // Check if there's a boss for this level
         Boss boss = bossRepository.findByLevel(newLevel).orElse(null);
+        System.out.println("Boss found for level " + newLevel + ": " + (boss != null));
 
-        if (boss != null) {
-            // Create or update user boss progress
-            UserBossProgress progress = userBossProgressRepository
-                .findByUserGameStatsIdAndBossId(userGameStats.getId(), boss.getId())
-                .orElse(null);
-
-            if (progress == null) {
-                progress = UserBossProgress.builder()
-                    .userGameStats(userGameStats)
-                    .boss(boss)
-                    .defeated(false)
-                    .build();
-                userBossProgressRepository.save(progress);
-            }
+        if (boss == null) {
+            System.out.println("Boss not found for level " + newLevel + ", creating new boss");
+            boss = createBossForLevel(newLevel);
+            System.out.println("Boss created with ID: " + boss.getId() + ", Name: " + boss.getName());
+        } else {
+            return;
         }
     }
 
     // Helper methods
+
+    private Boss createBossForLevel(Integer level) {
+        int hp, coinReward;
+
+        if (level == 1) {
+            hp = 200;
+            coinReward = 200;
+        } else {
+            // Calculate HP and coin rewards based on previous level
+            Boss previousBoss = bossRepository.findByLevel(level - 1).orElse(null);
+
+            if (previousBoss != null) {
+                // HP formula: HP_previous * 2 + HP_previous / 2
+                hp = previousBoss.getMaxHp() * 2 + previousBoss.getMaxHp() / 2;
+                // Coin reward formula: +20% from previous
+                coinReward = (int) (previousBoss.getCoinReward() * 1.2);
+            } else {
+                // Recursively calculate if previous boss doesn't exist
+                Boss createdPrevious = createBossForLevel(level - 1);
+                hp = createdPrevious.getMaxHp() * 2 + createdPrevious.getMaxHp() / 2;
+                coinReward = (int) (createdPrevious.getCoinReward() * 1.2);
+            }
+        }
+
+        Boss boss = Boss.builder()
+            .level(level)
+            .maxHp(hp)
+            .coinReward(coinReward)
+            .name("Boss Level " + level)
+            .description("A fearsome boss that appears at level " + level)
+            .build();
+
+        return bossRepository.save(boss);
+    }
 
     private UserGameStats getUserGameStats(Long userId) {
         return userGameStatsRepository.findByUserId(userId)
@@ -438,5 +489,65 @@ public class BossBattleServiceImpl implements BossBattleService {
         }
 
         return dto;
+    }
+
+    private int calculateRequiredXpForLevel(int level) {
+        if (level == 1) return 200;
+        int previousXp = calculateRequiredXpForLevel(level - 1);
+        int nextXp = previousXp * 2 + previousXp / 2;
+        // Round to next hundred
+        return (int) Math.ceil(nextXp / 100.0) * 100;
+    }
+
+    private int calculatePPGainForLevel(int newLevel) {
+        // Level 2 gains 40 PP
+        if (newLevel == 2) return 40;
+
+        // For levels > 2: PP_previous + (3/4 * PP_previous) = PP_previous * 1.75
+        int previousPP = calculatePPGainForLevel(newLevel - 1);
+        return (int) (previousPP + (previousPP * 3.0 / 4.0));
+    }
+
+    private Title getTitleForLevel(int level) {
+        if (level <= 1) return Title.NOVICE;
+        if (level == 2) return Title.APPRENTICE;
+        if (level == 3) return Title.ADVENTURER;
+        if (level == 4) return Title.WARRIOR;
+        if (level == 5) return Title.CHAMPION;
+        if (level == 6) return Title.MASTER;
+        if (level == 7) return Title.LEGEND;
+        return Title.MYTHIC; // Level 8+
+    }
+
+    private void performLevelUp(UserGameStats userGameStats) {
+        int newLevel = userGameStats.getLevel() + 1;
+        int ppGain = calculatePPGainForLevel(newLevel);
+        Title newTitle = getTitleForLevel(newLevel);
+
+        System.out.println("===== LEVEL UP DEBUG =====");
+        System.out.println("Old Level: " + userGameStats.getLevel());
+        System.out.println("New Level: " + newLevel);
+        System.out.println("Old PP: " + userGameStats.getPowerPoints());
+        System.out.println("PP Gain: " + ppGain);
+        System.out.println("New PP: " + (userGameStats.getPowerPoints() + ppGain));
+        System.out.println("Old Title: " + userGameStats.getTitle());
+        System.out.println("New Title: " + newTitle);
+        System.out.println("==========================");
+
+        userGameStats.setLevel(newLevel);
+        userGameStats.setPowerPoints(userGameStats.getPowerPoints() + ppGain);
+        userGameStats.setTitle(newTitle);
+        userGameStatsRepository.save(userGameStats);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BattleStatsPreviewDto getBattleStatsPreview(Long userId) {
+        UserGameStats userGameStats = getUserGameStats(userId);
+
+        Integer userPP = calculateTotalPP(userGameStats);
+        Double successRate = calculateSuccessRate(userId, userGameStats.getLevel());
+
+        return new BattleStatsPreviewDto(userPP, successRate, MAX_ATTACKS);
     }
 }

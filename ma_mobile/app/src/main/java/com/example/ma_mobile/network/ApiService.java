@@ -2,6 +2,7 @@ package com.example.ma_mobile.network;
 
 import com.example.ma_mobile.models.AttackRequest;
 import com.example.ma_mobile.models.AttackResponse;
+import com.example.ma_mobile.models.BattleStatsPreview;
 import com.example.ma_mobile.models.Boss;
 import com.example.ma_mobile.models.BossBattle;
 import com.example.ma_mobile.models.Category;
@@ -167,6 +168,10 @@ public interface ApiService {
 
     @GET("boss-battle/history")
     Call<List<BossBattle>> getBattleHistory();
+
+    @GET("boss-battle/stats-preview")
+    Call<BattleStatsPreview> getBattleStatsPreview();
+
     // Guild chat endpoints
     @GET("api/guilds/{guildId}/messages")
     Call<List<ChatMessage>> getGuildMessages(@Path("guildId") Long guildId);

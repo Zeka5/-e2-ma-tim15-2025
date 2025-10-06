@@ -3,6 +3,7 @@ package com.ma.ma_backend.controller.user;
 import com.ma.ma_backend.dto.TaskInstanceDto;
 import com.ma.ma_backend.service.intr.TaskInstanceService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/task-instances")
 @RequiredArgsConstructor
+@Slf4j
 public class TaskInstanceController {
     private final TaskInstanceService taskInstanceService;
 
@@ -21,6 +23,7 @@ public class TaskInstanceController {
 
     @PutMapping("/{id}/complete")
     public ResponseEntity<TaskInstanceDto> completeTaskInstance(@PathVariable Long id) {
+        log.info("AAAAAAAAAA");
         return ResponseEntity.ok(taskInstanceService.completeTaskInstance(id));
     }
 

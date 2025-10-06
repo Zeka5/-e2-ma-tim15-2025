@@ -73,6 +73,13 @@ public class BossBattleController {
         return ResponseEntity.ok(history);
     }
 
+    @GetMapping("/stats-preview")
+    public ResponseEntity<com.ma.ma_backend.dto.BattleStatsPreviewDto> getBattleStatsPreview() {
+        Long userId = getLoggedInUserId();
+        com.ma.ma_backend.dto.BattleStatsPreviewDto stats = bossBattleService.getBattleStatsPreview(userId);
+        return ResponseEntity.ok(stats);
+    }
+
     private Long getLoggedInUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();

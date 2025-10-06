@@ -28,6 +28,8 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final EntityMapper entityMapper;
+    private final BossBattleService bossBattleService;
+    private final com.ma.ma_backend.repository.BossRepository bossRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -65,24 +67,53 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         // Check XP quota
         boolean canAwardXp = checkXpQuota(instance.getTask(), user);
 
-        // Calculate XP based on task difficulty and importance
-        int xp = canAwardXp ? calculateXP(instance.getTask()) : 0;
+        // Calculate XP based on task difficulty and importance (scaled by user level)
+        UserGameStats gameStats = user.getGameStats();
+        int baseXp = canAwardXp && gameStats != null ? calculateXP(instance.getTask(), gameStats.getLevel()) : 0;
 
         // Mark instance as completed
         instance.setStatus(com.ma.ma_backend.domain.TaskStatus.COMPLETED);
         instance.setCompletedAt(java.time.LocalDateTime.now());
         instance.setXpAwarded(canAwardXp);
-        instance.setXpAmount(xp);
+        instance.setXpAmount(baseXp);
 
         TaskInstance savedInstance = taskInstanceRepository.save(instance);
 
         // Award XP to user's game stats only if quota allows
-        if (canAwardXp && xp > 0) {
-            UserGameStats gameStats = user.getGameStats();
-            if (gameStats != null) {
-                gameStats.setExperiencePoints(gameStats.getExperiencePoints() + xp);
-                userRepository.save(user);
+        if (canAwardXp && baseXp > 0 && gameStats != null) {
+            int currentLevel = gameStats.getLevel();
+            int maxXpForCurrentLevel = calculateRequiredXpForLevel(currentLevel);
+            int currentXp = gameStats.getExperiencePoints();
+
+            System.out.println("===== XP AWARD DEBUG =====");
+            System.out.println("Current Level: " + currentLevel);
+            System.out.println("Current XP: " + currentXp);
+            System.out.println("Base XP from task: " + baseXp);
+            System.out.println("Max XP for level " + currentLevel + ": " + maxXpForCurrentLevel);
+
+            // Add XP but cap at max for current level
+            int newXp = currentXp + baseXp;
+            System.out.println("Calculated new XP (before cap): " + newXp);
+
+            if (newXp > maxXpForCurrentLevel) {
+                System.out.println("XP exceeds max! Capping to: " + maxXpForCurrentLevel);
+                newXp = maxXpForCurrentLevel;
+
+                // Create boss for current level if it doesn't exist
+                if (bossRepository.findByLevel(currentLevel).isEmpty()) {
+                    System.out.println("Creating boss for level " + currentLevel);
+                    bossBattleService.onLevelComplete(user.getId(), currentLevel);
+                } else {
+                    System.out.println("Boss already exists for level " + currentLevel + ", skipping creation");
+                }
             }
+
+            System.out.println("Final XP to set: " + newXp);
+            gameStats.setExperiencePoints(newXp);
+
+            System.out.println("Saving user with level: " + gameStats.getLevel() + ", XP: " + gameStats.getExperiencePoints());
+            System.out.println("========================");
+            userRepository.save(user);
         }
 
         return entityMapper.taskInstanceToDto(savedInstance);
@@ -103,10 +134,23 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         taskInstanceRepository.delete(instance);
     }
 
-    private int calculateXP(com.ma.ma_backend.domain.Task task) {
+    private int calculateXP(com.ma.ma_backend.domain.Task task, int userLevel) {
         int difficultyXp = task.getDifficulty().getXp();
-        int importanceXp = task.getImportance().getXp();
-        return difficultyXp + importanceXp;
+
+        // Scale importance XP based on user level
+        // Formula: XP bitnosti za prethodni nivo + XP bitnosti za prethodni nivo / 2
+        int baseImportanceXp = task.getImportance().getXp();
+        int scaledImportanceXp = calculateScaledImportanceXp(baseImportanceXp, userLevel);
+
+        return difficultyXp + scaledImportanceXp;
+    }
+
+    private int calculateScaledImportanceXp(int baseXp, int level) {
+        if (level == 1) {
+            return baseXp;
+        }
+        int previousLevelXp = calculateScaledImportanceXp(baseXp, level - 1);
+        return previousLevelXp + previousLevelXp / 2;
     }
 
     private boolean checkXpQuota(com.ma.ma_backend.domain.Task task, User user) {
@@ -161,5 +205,13 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
 
         // For other combinations, allow XP (no quota restriction)
         return true;
+    }
+
+    private int calculateRequiredXpForLevel(int level) {
+        if (level == 1) return 200;
+        int previousXp = calculateRequiredXpForLevel(level - 1);
+        int nextXp = previousXp * 2 + previousXp / 2;
+        // Round to next hundred
+        return (int) Math.ceil(nextXp / 100.0) * 100;
     }
 }

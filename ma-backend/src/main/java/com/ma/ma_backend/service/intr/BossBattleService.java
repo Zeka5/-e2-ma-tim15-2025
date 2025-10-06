@@ -3,6 +3,7 @@ package com.ma.ma_backend.service.intr;
 import com.ma.ma_backend.dto.AttackResponse;
 import com.ma.ma_backend.dto.BossBattleDto;
 import com.ma.ma_backend.dto.BossDto;
+import com.ma.ma_backend.dto.BattleStatsPreviewDto;
 
 import java.util.List;
 
@@ -36,4 +37,9 @@ public interface BossBattleService {
      * Called when user completes a level to make the next boss available
      */
     void onLevelComplete(Long userId, Integer newLevel);
+
+    /**
+     * Get battle stats preview (PP, success rate, max attacks) for displaying before battle starts
+     */
+    BattleStatsPreviewDto getBattleStatsPreview(Long userId);
 }

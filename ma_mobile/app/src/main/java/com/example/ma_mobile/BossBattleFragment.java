@@ -17,8 +17,10 @@ import androidx.fragment.app.Fragment;
 
 import com.example.ma_mobile.models.AttackRequest;
 import com.example.ma_mobile.models.AttackResponse;
+import com.example.ma_mobile.models.BattleStatsPreview;
 import com.example.ma_mobile.models.Boss;
 import com.example.ma_mobile.models.BossBattle;
+import com.example.ma_mobile.models.User;
 import com.example.ma_mobile.network.ApiService;
 import com.example.ma_mobile.network.RetrofitClient;
 import com.google.android.material.button.MaterialButton;
@@ -35,10 +37,11 @@ public class BossBattleFragment extends Fragment {
 
     private TextView tvBossName, tvBossLevel, tvBossDescription, tvBossHp;
     private TextView tvUserPp, tvSuccessRate, tvAttacksRemaining;
-    private TextView tvActiveEquipment, tvBattleResult;
+    private TextView tvActiveEquipment, tvBattleResult, tvXpProgress;
     private ImageView ivBossImage;
-    private ProgressBar pbBossHp, progressLoading;
+    private ProgressBar pbBossHp, progressLoading, pbXpProgress;
     private MaterialButton btnAttack, btnStartBattle, btnSelectEquipment;
+    private View layoutBattleView, layoutXpProgressView;
 
     private ApiService apiService;
     private BossBattle currentBattle;
@@ -84,12 +87,16 @@ public class BossBattleFragment extends Fragment {
         tvAttacksRemaining = view.findViewById(R.id.tv_attacks_remaining);
         tvActiveEquipment = view.findViewById(R.id.tv_active_equipment);
         tvBattleResult = view.findViewById(R.id.tv_battle_result);
+        tvXpProgress = view.findViewById(R.id.tv_xp_progress);
         ivBossImage = view.findViewById(R.id.iv_boss_image);
         pbBossHp = view.findViewById(R.id.pb_boss_hp);
+        pbXpProgress = view.findViewById(R.id.pb_xp_progress);
         progressLoading = view.findViewById(R.id.progress_loading);
         btnAttack = view.findViewById(R.id.btn_attack);
         btnStartBattle = view.findViewById(R.id.btn_start_battle);
         btnSelectEquipment = view.findViewById(R.id.btn_select_equipment);
+        layoutBattleView = view.findViewById(R.id.layout_battle);
+        layoutXpProgressView = view.findViewById(R.id.layout_xp_progress);
     }
 
     private void setupClickListeners() {
@@ -127,26 +134,64 @@ public class BossBattleFragment extends Fragment {
     }
 
     private void loadNextBoss() {
+        // First, load user profile to get XP and level
+        apiService.getCurrentUserProfile().enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    User user = response.body();
+                    checkBossAvailability(user);
+                } else {
+                    showError("Failed to load user profile");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                showError("Failed to load profile: " + t.getMessage());
+            }
+        });
+    }
+
+    private void checkBossAvailability(User user) {
         apiService.getNextBoss().enqueue(new Callback<Boss>() {
             @Override
             public void onResponse(Call<Boss> call, Response<Boss> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    // Boss is available - user has reached max XP
                     currentBoss = response.body();
                     displayBossInfo();
                     showStartBattleUI();
+                } else if (response.code() == 500) {
+                    // Boss not available - show XP progress
+                    showXpProgressUI(user);
                 } else {
-                    showError("No boss available");
+                    // No boss available - show XP progress
+                    showXpProgressUI(user);
                 }
             }
 
             @Override
             public void onFailure(Call<Boss> call, Throwable t) {
-                showError("Failed to load boss: " + t.getMessage());
+                // On error, likely boss not available, show XP progress
+                showXpProgressUI(user);
             }
         });
     }
 
     private void startBattle() {
+        // Show equipment selection dialog first
+        EquipmentSelectionDialog dialog = EquipmentSelectionDialog.newInstance(selectedEquipmentIds);
+        dialog.setOnEquipmentSelectedListener(equipmentIds -> {
+            selectedEquipmentIds = equipmentIds;
+            updateEquipmentDisplay();
+            // After equipment is selected, create the battle
+            createBattle();
+        });
+        dialog.show(getChildFragmentManager(), "EquipmentSelectionDialog");
+    }
+
+    private void createBattle() {
         showLoading(true);
 
         apiService.startBattle().enqueue(new Callback<BossBattle>() {
@@ -292,6 +337,32 @@ public class BossBattleFragment extends Fragment {
         tvBossHp.setText(currentBoss.getMaxHp() + "/" + currentBoss.getMaxHp());
         pbBossHp.setMax(currentBoss.getMaxHp());
         pbBossHp.setProgress(currentBoss.getMaxHp());
+
+        // Load and display battle stats preview
+        loadBattleStatsPreview();
+    }
+
+    private void loadBattleStatsPreview() {
+        apiService.getBattleStatsPreview().enqueue(new Callback<BattleStatsPreview>() {
+            @Override
+            public void onResponse(Call<BattleStatsPreview> call, Response<BattleStatsPreview> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    BattleStatsPreview stats = response.body();
+                    displayBattleStats(stats);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<BattleStatsPreview> call, Throwable t) {
+                // Silently fail, keep default values
+            }
+        });
+    }
+
+    private void displayBattleStats(BattleStatsPreview stats) {
+        tvUserPp.setText(String.valueOf(stats.getUserPowerPoints()));
+        tvSuccessRate.setText(String.format(Locale.US, "%.0f%%", stats.getSuccessRate() * 100));
+        tvAttacksRemaining.setText(String.valueOf(stats.getMaxAttacks()));
     }
 
     private void displayBattle() {
@@ -338,7 +409,36 @@ public class BossBattleFragment extends Fragment {
         }
     }
 
+    private void showXpProgressUI(User user) {
+        // Hide battle view, show XP progress view
+        layoutBattleView.setVisibility(View.GONE);
+        layoutXpProgressView.setVisibility(View.VISIBLE);
+
+        int currentXp = user.getGameStats().getExperiencePoints();
+        int currentLevel = user.getGameStats().getLevel();
+        int maxXp = calculateMaxXpForLevel(currentLevel);
+
+        // Update XP text
+        tvXpProgress.setText(currentXp + "/" + maxXp + " XP");
+
+        // Update progress bar
+        pbXpProgress.setMax(maxXp);
+        pbXpProgress.setProgress(currentXp);
+    }
+
+    private int calculateMaxXpForLevel(int level) {
+        if (level == 1) return 200;
+        int previousXp = calculateMaxXpForLevel(level - 1);
+        int nextXp = previousXp * 2 + previousXp / 2;
+        // Round to next hundred
+        return (int) Math.ceil(nextXp / 100.0) * 100;
+    }
+
     private void showStartBattleUI() {
+        // Show battle view, hide XP progress view
+        layoutBattleView.setVisibility(View.VISIBLE);
+        layoutXpProgressView.setVisibility(View.GONE);
+
         btnStartBattle.setVisibility(View.VISIBLE);
         btnAttack.setVisibility(View.GONE);
         btnSelectEquipment.setEnabled(true);
@@ -346,6 +446,10 @@ public class BossBattleFragment extends Fragment {
     }
 
     private void showBattleUI() {
+        // Show battle view, hide XP progress view
+        layoutBattleView.setVisibility(View.VISIBLE);
+        layoutXpProgressView.setVisibility(View.GONE);
+
         btnStartBattle.setVisibility(View.GONE);
         btnAttack.setVisibility(View.VISIBLE);
         btnAttack.setEnabled(true);
