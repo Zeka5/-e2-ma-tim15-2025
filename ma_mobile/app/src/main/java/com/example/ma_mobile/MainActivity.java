@@ -78,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.nav_tasks) {
                 loadTasksFragment();
                 return true;
+            } else if (itemId == R.id.nav_equipment) {
+                loadEquipmentFragment();
+                return true;
 //            } else if (itemId == R.id.nav_categories) {
 //                loadCategoriesFragment();
             } else if (itemId == R.id.nav_community) {
@@ -120,6 +123,11 @@ public class MainActivity extends AppCompatActivity {
     private void loadAccountFragment() {
         AccountFragment fragment = AccountFragment.newInstance(userEmail);
         loadFragment(fragment, "AccountFragment");
+    }
+
+    private void loadEquipmentFragment() {
+        EquipmentFragment fragment = EquipmentFragment.newInstance();
+        loadFragment(fragment, "EquipmentFragment");
     }
 
     private void loadCommunityFragment() {

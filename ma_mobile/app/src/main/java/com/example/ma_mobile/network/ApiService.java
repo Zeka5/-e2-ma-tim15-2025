@@ -175,4 +175,42 @@ public interface ApiService {
     // Guild chat endpoints
     @GET("api/guilds/{guildId}/messages")
     Call<List<ChatMessage>> getGuildMessages(@Path("guildId") Long guildId);
+
+    // Equipment endpoints
+    @GET("api/equipment")
+    Call<com.example.ma_mobile.models.UserEquipment> getAllEquipment();
+
+    @GET("api/equipment/potions")
+    Call<List<com.example.ma_mobile.models.UserPotion>> getPotions();
+
+    @GET("api/equipment/clothing")
+    Call<List<com.example.ma_mobile.models.UserClothing>> getClothing();
+
+    @GET("api/equipment/weapons")
+    Call<List<com.example.ma_mobile.models.UserWeapon>> getWeapons();
+
+    @POST("api/equipment/potions/{potionId}/activate")
+    Call<Void> activatePotion(@Path("potionId") Long potionId);
+
+    @POST("api/equipment/potions/{potionId}/deactivate")
+    Call<Void> deactivatePotion(@Path("potionId") Long potionId);
+
+    @POST("api/equipment/clothing/{clothingId}/activate")
+    Call<Void> activateClothing(@Path("clothingId") Long clothingId);
+
+    @POST("api/equipment/clothing/{clothingId}/deactivate")
+    Call<Void> deactivateClothing(@Path("clothingId") Long clothingId);
+
+    // Shop endpoints
+    @GET("api/shop/potions")
+    Call<List<com.example.ma_mobile.models.PotionTemplate>> getAvailablePotions();
+
+    @GET("api/shop/clothing")
+    Call<List<com.example.ma_mobile.models.ClothingTemplate>> getAvailableClothing();
+
+    @POST("api/shop/potions/purchase")
+    Call<Void> purchasePotion(@Body com.example.ma_mobile.models.PurchaseItemRequest request);
+
+    @POST("api/shop/clothing/purchase/{templateId}")
+    Call<Void> purchaseClothing(@Path("templateId") Long templateId);
 }
