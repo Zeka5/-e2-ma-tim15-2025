@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +30,8 @@ public class TasksFragment extends Fragment {
 
     private LinearLayout llTasksList;
     private TextView tvNoTasks;
+    private ScrollView scrollTasks;
+    private FrameLayout bossBattleContainer;
     private FloatingActionButton fabAddTask;
     private FloatingActionButton fabCalendar;
     private FloatingActionButton fabAddCategory;
@@ -36,6 +40,7 @@ public class TasksFragment extends Fragment {
 
     private List<Task> allTasks = new ArrayList<>();
     private boolean showingRepeatingTasks = false;
+    private boolean showingBossBattle = false;
 
     public TasksFragment() {
         // Required empty public constructor
@@ -64,6 +69,8 @@ public class TasksFragment extends Fragment {
     private void initializeViews(View view) {
         llTasksList = view.findViewById(R.id.ll_tasks_list);
         tvNoTasks = view.findViewById(R.id.tv_no_tasks);
+        scrollTasks = view.findViewById(R.id.scroll_tasks);
+        bossBattleContainer = view.findViewById(R.id.boss_battle_container);
         fabAddTask = view.findViewById(R.id.fab_add_task);
         fabCalendar = view.findViewById(R.id.fab_calendar);
         fabAddCategory = view.findViewById(R.id.fab_add_category);
@@ -80,8 +87,22 @@ public class TasksFragment extends Fragment {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                showingRepeatingTasks = tab.getPosition() == 1;
-                filterAndDisplayTasks();
+                int position = tab.getPosition();
+
+                if (position == 2) {
+                    // Boss Battle tab
+                    showingBossBattle = true;
+                    showingRepeatingTasks = false;
+                    showBossBattleView();
+                    hideFABs();
+                } else {
+                    // Tasks tabs
+                    showingBossBattle = false;
+                    showingRepeatingTasks = position == 1;
+                    showTasksView();
+                    showFABs();
+                    filterAndDisplayTasks();
+                }
             }
 
             @Override
@@ -459,5 +480,33 @@ public class TasksFragment extends Fragment {
                 .replace(R.id.fragment_container, categoriesFragment, "CategoriesFragment")
                 .addToBackStack(null)
                 .commit();
+    }
+
+    private void showBossBattleView() {
+        scrollTasks.setVisibility(View.GONE);
+        bossBattleContainer.setVisibility(View.VISIBLE);
+
+        // Load BossBattleFragment
+        BossBattleFragment bossBattleFragment = BossBattleFragment.newInstance();
+        getChildFragmentManager().beginTransaction()
+                .replace(R.id.boss_battle_container, bossBattleFragment)
+                .commit();
+    }
+
+    private void showTasksView() {
+        scrollTasks.setVisibility(View.VISIBLE);
+        bossBattleContainer.setVisibility(View.GONE);
+    }
+
+    private void showFABs() {
+        fabAddTask.setVisibility(View.VISIBLE);
+        fabCalendar.setVisibility(View.VISIBLE);
+        fabAddCategory.setVisibility(View.VISIBLE);
+    }
+
+    private void hideFABs() {
+        fabAddTask.setVisibility(View.GONE);
+        fabCalendar.setVisibility(View.GONE);
+        fabAddCategory.setVisibility(View.GONE);
     }
 }

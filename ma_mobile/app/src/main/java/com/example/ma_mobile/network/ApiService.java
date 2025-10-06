@@ -1,5 +1,9 @@
 package com.example.ma_mobile.network;
 
+import com.example.ma_mobile.models.AttackRequest;
+import com.example.ma_mobile.models.AttackResponse;
+import com.example.ma_mobile.models.Boss;
+import com.example.ma_mobile.models.BossBattle;
 import com.example.ma_mobile.models.Category;
 import com.example.ma_mobile.models.CreateCategoryRequest;
 import com.example.ma_mobile.models.CreateTaskRequest;
@@ -146,4 +150,20 @@ public interface ApiService {
 
     @POST("api/guilds/leave")
     Call<Void> leaveGuild();
+
+    // Boss Battle endpoints
+    @GET("boss-battle/next-boss")
+    Call<Boss> getNextBoss();
+
+    @POST("boss-battle/start")
+    Call<BossBattle> startBattle();
+
+    @POST("boss-battle/attack")
+    Call<AttackResponse> attack(@Body AttackRequest request);
+
+    @GET("boss-battle/current")
+    Call<BossBattle> getCurrentBattle();
+
+    @GET("boss-battle/history")
+    Call<List<BossBattle>> getBattleHistory();
 }
