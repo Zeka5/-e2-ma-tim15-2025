@@ -97,6 +97,9 @@ public class GuildServiceImpl implements GuildService {
             throw new InvalidRequestException("Cannot delete guild with an active mission");
         }
 
+        // Delete all pending invites for this guild
+        guildInviteRepository.deleteByGuild(guild);
+
         // Remove guild from leader first
         User leader = guild.getLeader();
         leader.setCurrentGuild(null);
