@@ -10,6 +10,7 @@ import com.ma.ma_backend.exception.NotFoundException;
 import com.ma.ma_backend.mapper.EntityMapper;
 import com.ma.ma_backend.repository.TaskInstanceRepository;
 import com.ma.ma_backend.repository.UserRepository;
+import com.ma.ma_backend.service.intr.BossBattleService;
 import com.ma.ma_backend.service.intr.TaskInstanceService;
 import com.ma.ma_backend.service.intr.UserService;
 import lombok.RequiredArgsConstructor;

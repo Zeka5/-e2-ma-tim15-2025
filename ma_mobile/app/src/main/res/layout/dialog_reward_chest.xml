@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="32dp"
+    android:background="#FFFFFF">
+
+    <!-- Victory/Defeat Title -->
+    <TextView
+        android:id="@+id/tv_battle_outcome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="VICTORY!"
+        android:textColor="#4CAF50"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Chest Image -->
+    <ImageView
+        android:id="@+id/iv_chest"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:src="@android:drawable/ic_lock_lock"
+        android:tint="#9C27B0"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Shake to Open Instruction -->
+    <TextView
+        android:id="@+id/tv_shake_instruction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Shake your device to open the chest!"
+        android:textColor="#424242"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_marginBottom="24dp"
+        android:padding="12dp"
+        android:background="@android:drawable/dialog_holo_light_frame"/>
+
+    <!-- Rewards Container (initially hidden) -->
+    <LinearLayout
+        android:id="@+id/layout_rewards"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:padding="16dp"
+        android:background="@android:drawable/dialog_holo_light_frame">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rewards"
+            android:textColor="#9C27B0"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Coins Reward -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@android:drawable/btn_star_big_on"
+                android:tint="#FFD700"/>
+
+            <TextView
+                android:id="@+id/tv_coins_earned"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="200 Coins"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginStart="12dp"/>
+        </LinearLayout>
+
+        <!-- Equipment Reward -->
+        <LinearLayout
+            android:id="@+id/layout_equipment_reward"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@android:drawable/ic_menu_view"
+                android:tint="#9C27B0"/>
+
+            <TextView
+                android:id="@+id/tv_equipment_earned"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Legendary Sword"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginStart="12dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Close Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_close"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Claim Rewards"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:backgroundTint="#4CAF50"
+        app:cornerRadius="12dp"
+        android:layout_marginTop="24dp"
+        android:visibility="gone"/>
+</LinearLayout>
