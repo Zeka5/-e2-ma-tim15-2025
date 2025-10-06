@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/zekov/Desktop/only_buns_projekat/onlybuns-back-isa/onlybuns/src/main/java/team5/onlybuns/config/**)",
+      "Read(//c/Users/zekov/Desktop/only_buns_projekat/onlybuns-back-isa/onlybuns/src/main/java/team5/onlybuns/controller/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
