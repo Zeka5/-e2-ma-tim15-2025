@@ -18,4 +18,5 @@ public interface GuildInviteRepository extends JpaRepository<GuildInvite, Long> 
 
     List<GuildInvite> findByReceiverAndStatus(User receiver, GuildInviteStatus status);
     boolean existsByGuildAndReceiverAndStatus(Guild guild, User receiver, GuildInviteStatus status);
+    void deleteByGuild(Guild guild);
 }
