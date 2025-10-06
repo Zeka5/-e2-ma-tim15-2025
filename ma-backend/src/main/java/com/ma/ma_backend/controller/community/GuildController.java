@@ -1,4 +1,4 @@
-package com.ma.ma_backend.controller.user;
+package com.ma.ma_backend.controller.community;
 
 import com.ma.ma_backend.dto.GuildDto;
 import com.ma.ma_backend.dto.GuildInviteDto;

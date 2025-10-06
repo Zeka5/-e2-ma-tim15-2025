@@ -8,6 +8,7 @@ import com.ma.ma_backend.exception.InvalidRequestException;
 import com.ma.ma_backend.exception.NotFoundException;
 import com.ma.ma_backend.mapper.EntityMapper;
 import com.ma.ma_backend.repository.GuildInviteRepository;
+import com.ma.ma_backend.repository.GuildMessageRepository;
 import com.ma.ma_backend.repository.GuildRepository;
 import com.ma.ma_backend.repository.UserRepository;
 import com.ma.ma_backend.service.intr.GuildService;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 public class GuildServiceImpl implements GuildService {
     private final GuildRepository guildRepository;
     private final GuildInviteRepository guildInviteRepository;
+    private final GuildMessageRepository guildMessageRepository;
     private final UserRepository userRepository;
     private final UserService userService;
     private final EntityMapper entityMapper;
@@ -99,6 +101,9 @@ public class GuildServiceImpl implements GuildService {
 
         // Delete all pending invites for this guild
         guildInviteRepository.deleteByGuild(guild);
+
+        // Delete all messages for this guild
+        guildMessageRepository.deleteByGuild(guild);
 
         // Remove guild from leader first
         User leader = guild.getLeader();
