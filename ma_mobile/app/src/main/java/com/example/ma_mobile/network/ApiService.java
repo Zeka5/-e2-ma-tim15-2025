@@ -1,6 +1,7 @@
 package com.example.ma_mobile.network;
 
 import com.example.ma_mobile.models.Category;
+import com.example.ma_mobile.models.ChatMessage;
 import com.example.ma_mobile.models.CreateCategoryRequest;
 import com.example.ma_mobile.models.CreateTaskRequest;
 import com.example.ma_mobile.models.Task;
@@ -146,4 +147,8 @@ public interface ApiService {
 
     @POST("api/guilds/leave")
     Call<Void> leaveGuild();
+
+    // Guild chat endpoints
+    @GET("api/guilds/{guildId}/messages")
+    Call<List<ChatMessage>> getGuildMessages(@Path("guildId") Long guildId);
 }

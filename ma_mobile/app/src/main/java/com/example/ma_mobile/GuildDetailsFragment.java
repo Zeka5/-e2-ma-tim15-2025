@@ -31,6 +31,7 @@ public class GuildDetailsFragment extends Fragment implements GuildMemberAdapter
 
     private TextView tvGuildName;
     private TextView tvMemberCount;
+    private Button btnGuildChat;
     private Button btnInviteFriends;
     private Button btnLeaveDeleteGuild;
     private RecyclerView rvMembers;
@@ -86,6 +87,7 @@ public class GuildDetailsFragment extends Fragment implements GuildMemberAdapter
     private void initializeViews(View view) {
         tvGuildName = view.findViewById(R.id.tv_guild_name);
         tvMemberCount = view.findViewById(R.id.tv_member_count);
+        btnGuildChat = view.findViewById(R.id.btn_guild_chat);
         btnInviteFriends = view.findViewById(R.id.btn_invite_friends);
         btnLeaveDeleteGuild = view.findViewById(R.id.btn_leave_delete_guild);
         rvMembers = view.findViewById(R.id.rv_members);
@@ -99,6 +101,7 @@ public class GuildDetailsFragment extends Fragment implements GuildMemberAdapter
     }
 
     private void setupListeners() {
+        btnGuildChat.setOnClickListener(v -> navigateToGuildChat());
         btnInviteFriends.setOnClickListener(v -> navigateToInviteFriends());
         btnLeaveDeleteGuild.setOnClickListener(v -> showLeaveDeleteConfirmation());
     }
@@ -163,6 +166,20 @@ public class GuildDetailsFragment extends Fragment implements GuildMemberAdapter
         // Display members
         if (guild.getMembers() != null && guild.getLeader() != null) {
             memberAdapter.setMembers(guild.getMembers(), guild.getLeader().getId());
+        }
+    }
+
+    private void navigateToGuildChat() {
+        if (getActivity() != null && currentGuild != null) {
+            GuildChatFragment chatFragment = GuildChatFragment.newInstance(
+                    currentGuild.getId(),
+                    currentGuild.getName()
+            );
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, chatFragment)
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 

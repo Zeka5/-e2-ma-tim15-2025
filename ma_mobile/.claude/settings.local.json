@@ -3,7 +3,9 @@
     "allow": [
       "Read(//c/Users/zekov/Desktop/mobilne/-e2-ma-tim15-2025/ma-backend/src/main/java/com/ma/ma_backend/controller/user/**)",
       "Read(//c/Users/zekov/Desktop/mobilne/-e2-ma-tim15-2025/ma-backend/src/main/java/com/ma/ma_backend/dto/**)",
-      "Read(//c/Users/zekov/Desktop/mobilne/-e2-ma-tim15-2025/ma-backend/src/main/java/com/ma/ma_backend/domain/**)"
+      "Read(//c/Users/zekov/Desktop/mobilne/-e2-ma-tim15-2025/ma-backend/src/main/java/com/ma/ma_backend/domain/**)",
+      "Read(//c/Users/zekov/Desktop/mobilne/-e2-ma-tim15-2025/ma-backend/src/main/java/com/ma/ma_backend/config/**)",
+      "Read(//c/Users/zekov/Desktop/mobilne/-e2-ma-tim15-2025/ma-backend/**)"
     ],
     "deny": [],
     "ask": []

@@ -57,6 +57,7 @@ public class FriendServiceImpl implements FriendService {
                 .sender(sender)
                 .receiver(receiver)
                 .status(FriendRequestStatus.PENDING)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         FriendRequest savedRequest = friendRequestRepository.save(request);
