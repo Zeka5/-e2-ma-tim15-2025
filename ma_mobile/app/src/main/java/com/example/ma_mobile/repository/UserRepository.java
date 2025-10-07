@@ -3,7 +3,9 @@ package com.example.ma_mobile.repository;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.ma_mobile.models.ChangePasswordRequest;
 import com.example.ma_mobile.models.PublicUserProfile;
+import com.example.ma_mobile.models.PurchaseItemRequest;
 import com.example.ma_mobile.models.User;
 import com.example.ma_mobile.network.ApiService;
 import com.example.ma_mobile.network.RetrofitClient;
@@ -39,6 +41,10 @@ public class UserRepository {
         void onError(String error);
     }
 
+    public interface PasswordChangeCallback {
+        void onSuccess();
+        void onError(String error);
+    }
     public void getCurrentUserProfile(UserProfileCallback callback) {
         Call<User> call = apiService.getCurrentUserProfile();
 
@@ -107,6 +113,32 @@ public class UserRepository {
 
             @Override
             public void onFailure(Call<PublicUserProfile> call, Throwable t) {
+                String errorMessage = "Network error: " + t.getMessage();
+                Log.e(TAG, errorMessage, t);
+                callback.onError(errorMessage);
+            }
+        });
+    }
+
+    public void changePassword(String currentPassword, String newPassword, PasswordChangeCallback callback) {
+        ChangePasswordRequest request = new ChangePasswordRequest(currentPassword, newPassword);
+        Call<Void> call = apiService.changePassword(request);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.d(TAG, "Password changed successfully");
+                    callback.onSuccess();
+                } else {
+                    String errorMessage = "Failed: " + response.message();
+                    Log.e(TAG, errorMessage);
+                    callback.onError(errorMessage);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
                 String errorMessage = "Network error: " + t.getMessage();
                 Log.e(TAG, errorMessage, t);
                 callback.onError(errorMessage);

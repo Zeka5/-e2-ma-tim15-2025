@@ -1,5 +1,6 @@
 package com.ma.ma_backend.controller.user;
 
+import com.ma.ma_backend.dto.ChangePasswordRequest;
 import com.ma.ma_backend.dto.PublicUserProfileDto;
 import com.ma.ma_backend.dto.UserDto;
 import com.ma.ma_backend.service.intr.UserService;
@@ -30,6 +31,12 @@ public class UserController {
     @PutMapping("/me")
     public ResponseEntity<UserDto> updateMyInfo(@RequestBody UserDto userDto) {
         return ResponseEntity.ok(userService.updateMyInfo(userDto));
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<String> updatePassword(@RequestBody ChangePasswordRequest changePasswordRequest) {
+        userService.changePassword(changePasswordRequest.getOldPassword(), changePasswordRequest.getNewPassword());
+        return ResponseEntity.ok("Password updated");
     }
 
     @DeleteMapping("{id}")

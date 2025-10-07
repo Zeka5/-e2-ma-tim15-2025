@@ -19,4 +19,10 @@ public interface BossBattleRepository extends JpaRepository<BossBattle, Long> {
         Long bossId,
         BattleStatus status
     );
+
+    List<BossBattle> findByUserGameStatsId(Long userGameStatsId);
+
+    long countByUserGameStatsId(Long userGameStatsId);
+
+    long countByUserGameStatsIdAndStatus(Long userGameStatsId, BattleStatus status);
 }

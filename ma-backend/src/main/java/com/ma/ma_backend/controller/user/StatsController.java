@@ -2,6 +2,8 @@ package com.ma.ma_backend.controller.user;
 
 import com.ma.ma_backend.dto.BadgeDto;
 import com.ma.ma_backend.dto.UserGameStatsDto;
+import com.ma.ma_backend.dto.UserStatisticsDto;
+import com.ma.ma_backend.service.intr.StatisticsService;
 import com.ma.ma_backend.service.intr.UserGameStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StatsController {
     private final UserGameStatsService userGameStatsService;
+    private final StatisticsService statisticsService;
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserGameStatsDto> getStatsByUserId(@PathVariable Long userId) {
@@ -45,5 +48,10 @@ public class StatsController {
             @PathVariable Long badgeId) {
         userGameStatsService.removeBadge(userId, badgeId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/user-statistics")
+    public ResponseEntity<UserStatisticsDto> getUserStatistics() {
+        return ResponseEntity.ok(statisticsService.getUserStatistics());
     }
 }

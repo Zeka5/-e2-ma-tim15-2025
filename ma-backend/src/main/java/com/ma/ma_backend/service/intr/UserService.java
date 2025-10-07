@@ -11,6 +11,7 @@ public interface UserService {
     User getLogedInUser();
     UserDto getMyInfo();
     UserDto updateMyInfo(UserDto userDto);
+    void changePassword(String oldPassword, String newPassword);
     void delete(Long userId);
 
     PublicUserProfileDto getPublicProfile(Long userId);

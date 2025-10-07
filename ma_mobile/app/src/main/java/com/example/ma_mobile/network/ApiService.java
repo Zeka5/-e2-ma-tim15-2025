@@ -6,6 +6,7 @@ import com.example.ma_mobile.models.BattleStatsPreview;
 import com.example.ma_mobile.models.Boss;
 import com.example.ma_mobile.models.BossBattle;
 import com.example.ma_mobile.models.Category;
+import com.example.ma_mobile.models.ChangePasswordRequest;
 import com.example.ma_mobile.models.ChatMessage;
 import com.example.ma_mobile.models.CreateCategoryRequest;
 import com.example.ma_mobile.models.CreateTaskRequest;
@@ -17,6 +18,7 @@ import com.example.ma_mobile.models.Guild;
 import com.example.ma_mobile.models.GuildInvite;
 import com.example.ma_mobile.models.PublicUserProfile;
 import com.example.ma_mobile.models.User;
+import com.example.ma_mobile.models.UserStatistics;
 import com.example.ma_mobile.models.auth.AuthResponse;
 import com.example.ma_mobile.models.auth.LoginRequest;
 import com.example.ma_mobile.models.auth.RegisterRequest;
@@ -42,6 +44,12 @@ public interface ApiService {
 
     @GET("users/me")
     Call<User> getCurrentUserProfile();
+
+    @PUT("users/password")
+    Call<Void> changePassword(@Body ChangePasswordRequest changePasswordRequest);
+
+    @GET("api/stats/user-statistics")
+    Call<UserStatistics> getUserStatistics();
 
     // Category endpoints
     @GET("categories")

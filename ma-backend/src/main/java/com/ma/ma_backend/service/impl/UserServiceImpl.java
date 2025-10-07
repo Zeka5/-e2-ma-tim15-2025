@@ -4,6 +4,7 @@ import com.ma.ma_backend.domain.User;
 import com.ma.ma_backend.dto.PublicUserProfileDto;
 import com.ma.ma_backend.dto.UserDto;
 import com.ma.ma_backend.exception.EntityExistsException;
+import com.ma.ma_backend.exception.InvalidRequestException;
 import com.ma.ma_backend.exception.NotFoundException;
 import com.ma.ma_backend.mapper.EntityMapper;
 import com.ma.ma_backend.repository.UserRepository;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.naming.directory.InvalidAttributesException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final EntityMapper entityMapper;
 
     @Override
@@ -68,6 +71,21 @@ public class UserServiceImpl implements UserService {
 
         User saved = userRepository.save(user);
         return entityMapper.mapUserToDto(saved);
+    }
+
+    @Override
+    public void changePassword(String oldPassword, String newPassword) {
+        User user = getLogedInUser();
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new EntityExistsException("Old password does not match.");
+        }
+        if (user.getPassword().equalsIgnoreCase(oldPassword)) {
+            throw new InvalidRequestException("Please enter different password than the old one.");
+        }
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
     }
 
     @Override

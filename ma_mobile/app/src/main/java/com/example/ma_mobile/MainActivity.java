@@ -32,9 +32,9 @@ public class MainActivity extends AppCompatActivity {
         setupToolbar();
         setupBottomNavigation();
 
-        // Load home fragment by default
+        // Load by default
         if (savedInstanceState == null) {
-            loadHomeFragment();
+            loadTasksFragment();
         }
     }
 
@@ -72,42 +72,32 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
-            if (itemId == R.id.nav_home) {
-                loadHomeFragment();
-                return true;
-            } else if (itemId == R.id.nav_tasks) {
+            if (itemId == R.id.nav_tasks) {
                 loadTasksFragment();
+                return true;
+            } else if (itemId == R.id.nav_statistics) {
+                loadStatisticsFragment();
                 return true;
             } else if (itemId == R.id.nav_equipment) {
                 loadEquipmentFragment();
                 return true;
-//            } else if (itemId == R.id.nav_categories) {
-//                loadCategoriesFragment();
             } else if (itemId == R.id.nav_community) {
                 loadCommunityFragment();
                 return true;
-//            } else if (itemId == R.id.nav_notifications) {
-//                loadNotificationsFragment();
-//                updateToolbarTitle("Notifications");
-//                return true;
-//            } else if (itemId == R.id.nav_account) {
-//                loadAccountFragment();
-//                updateToolbarTitle("Account");
-//                return true;
             }
 
             return false;
         });
     }
 
-    private void loadHomeFragment() {
-        HomeFragment fragment = HomeFragment.newInstance(userEmail);
-        loadFragment(fragment, "HomeFragment");
-    }
-
     private void loadTasksFragment() {
         TasksFragment fragment = new TasksFragment();
         loadFragment(fragment, "TasksFragment");
+    }
+
+    private void loadStatisticsFragment() {
+        StatisticsFragment fragment = StatisticsFragment.newInstance();
+        loadFragment(fragment, "StatisticsFragment");
     }
 
     private void loadCategoriesFragment() {
@@ -152,10 +142,10 @@ public class MainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (bottomNavigation.getSelectedItemId() != R.id.nav_home) {
-                    bottomNavigation.setSelectedItemId(R.id.nav_home);
+                if (bottomNavigation.getSelectedItemId() != R.id.nav_tasks) {
+                    bottomNavigation.setSelectedItemId(R.id.nav_tasks);
                 } else {
-                    // ako nema home, izadji iz app
+                    // ako nema tasks, izadji iz app
                     finish();
                 }
             }
