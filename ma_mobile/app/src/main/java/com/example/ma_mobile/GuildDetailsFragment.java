@@ -32,6 +32,7 @@ public class GuildDetailsFragment extends Fragment implements GuildMemberAdapter
     private TextView tvGuildName;
     private TextView tvMemberCount;
     private Button btnGuildChat;
+    private Button btnSpecialMission;
     private Button btnInviteFriends;
     private Button btnLeaveDeleteGuild;
     private RecyclerView rvMembers;
@@ -88,6 +89,7 @@ public class GuildDetailsFragment extends Fragment implements GuildMemberAdapter
         tvGuildName = view.findViewById(R.id.tv_guild_name);
         tvMemberCount = view.findViewById(R.id.tv_member_count);
         btnGuildChat = view.findViewById(R.id.btn_guild_chat);
+        btnSpecialMission = view.findViewById(R.id.btn_special_mission);
         btnInviteFriends = view.findViewById(R.id.btn_invite_friends);
         btnLeaveDeleteGuild = view.findViewById(R.id.btn_leave_delete_guild);
         rvMembers = view.findViewById(R.id.rv_members);
@@ -102,6 +104,7 @@ public class GuildDetailsFragment extends Fragment implements GuildMemberAdapter
 
     private void setupListeners() {
         btnGuildChat.setOnClickListener(v -> navigateToGuildChat());
+        btnSpecialMission.setOnClickListener(v -> navigateToSpecialMission());
         btnInviteFriends.setOnClickListener(v -> navigateToInviteFriends());
         btnLeaveDeleteGuild.setOnClickListener(v -> showLeaveDeleteConfirmation());
     }
@@ -178,6 +181,17 @@ public class GuildDetailsFragment extends Fragment implements GuildMemberAdapter
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, chatFragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
+
+    private void navigateToSpecialMission() {
+        if (getActivity() != null && currentGuild != null) {
+            GuildBossBattleFragment specialMissionFragment = GuildBossBattleFragment.newInstance(currentGuild.getId());
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, specialMissionFragment)
                     .addToBackStack(null)
                     .commit();
         }

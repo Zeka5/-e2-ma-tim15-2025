@@ -5,7 +5,9 @@ import com.ma.ma_backend.dto.*;
 import com.ma.ma_backend.exception.NotFoundException;
 import com.ma.ma_backend.repository.*;
 import com.ma.ma_backend.service.intr.BossBattleService;
+import com.ma.ma_backend.service.intr.GuildBossBattleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class BossBattleServiceImpl implements BossBattleService {
     private final ClothingTemplateRepository clothingTemplateRepository;
     private final UserWeaponRepository userWeaponRepository;
     private final UserClothingRepository userClothingRepository;
+    private final @Lazy GuildBossBattleService guildBossBattleService;
     private final Random random = new Random();
 
     private static final int MAX_ATTACKS = 5;
@@ -127,6 +130,9 @@ public class BossBattleServiceImpl implements BossBattleService {
             damageDealt = battle.getUserPpAtBattle();
             int newHp = Math.max(0, battle.getCurrentHp() - damageDealt);
             battle.setCurrentHp(newHp);
+
+            // Trigger guild boss battle progress
+            guildBossBattleService.onBossHit(userId);
         }
 
         battle.setAttacksUsed(battle.getAttacksUsed() + 1);
@@ -369,28 +375,46 @@ public class BossBattleServiceImpl implements BossBattleService {
             dropEquipment = random.nextDouble() < (EQUIPMENT_DROP_CHANCE / 2);
         }
 
+        System.out.println("===== REWARDS DEBUG =====");
+        System.out.println("Drop equipment: " + dropEquipment);
+        System.out.println("Full reward: " + fullReward);
+        System.out.println("Equipment drop chance: " + EQUIPMENT_DROP_CHANCE);
+
         if (dropEquipment) {
             boolean isWeapon = random.nextDouble() < WEAPON_DROP_CHANCE;
+            System.out.println("Is weapon: " + isWeapon);
 
             if (isWeapon) {
                 // Drop a random weapon
                 List<WeaponTemplate> allWeapons = weaponTemplateRepository.findAll();
+                System.out.println("Available weapons: " + allWeapons.size());
                 if (!allWeapons.isEmpty()) {
                     WeaponTemplate weapon = allWeapons.get(random.nextInt(allWeapons.size()));
                     battle.setEquipmentEarnedWeapon(weapon);
+                    System.out.println("Dropped weapon: " + weapon.getName() + " (ID: " + weapon.getId() + ")");
+                    System.out.println("=========================");
                     return new BattleRewardsDto(coins, "WEAPON", weapon.getName(), weapon.getId());
+                } else {
+                    System.out.println("ERROR: No weapons in database!");
                 }
             } else {
                 // Drop random clothing
                 List<ClothingTemplate> allClothing = clothingTemplateRepository.findAll();
+                System.out.println("Available clothing: " + allClothing.size());
                 if (!allClothing.isEmpty()) {
                     ClothingTemplate clothing = allClothing.get(random.nextInt(allClothing.size()));
                     battle.setEquipmentEarnedClothing(clothing);
+                    System.out.println("Dropped clothing: " + clothing.getName() + " (ID: " + clothing.getId() + ")");
+                    System.out.println("=========================");
                     return new BattleRewardsDto(coins, "CLOTHING", clothing.getName(), clothing.getId());
+                } else {
+                    System.out.println("ERROR: No clothing in database!");
                 }
             }
         }
 
+        System.out.println("No equipment dropped (dropEquipment was false)");
+        System.out.println("=========================");
         return new BattleRewardsDto(coins, null, null, null);
     }
 
