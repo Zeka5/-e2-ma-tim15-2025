@@ -53,6 +53,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
 
     private UserRepository userRepository;
     private String userEmail;
+    private Button btnChangePassword;
 
     public AccountFragment() {
         // Required empty public constructor
@@ -96,6 +97,8 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
 
         if (viewId == R.id.btn_logout) {
             handleLogout();
+        } else if (viewId == R.id.btn_change_password) {
+            handleChangePassword();
         }
     }
 
@@ -122,9 +125,12 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
         // Action buttons
         btnLogout = view.findViewById(R.id.btn_logout);
         progressBar = view.findViewById(R.id.progress_bar);
+
+        btnChangePassword = view.findViewById(R.id.btn_change_password);
     }
 
     private void setClickListeners() {
+        btnChangePassword.setOnClickListener(this);
         btnLogout.setOnClickListener(this);
     }
 
@@ -265,6 +271,18 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
 
         if (getActivity() != null) {
             getActivity().finish();
+        }
+    }
+
+    private void handleChangePassword() {
+        ChangePasswordFragment changePasswordFragment = ChangePasswordFragment.newInstance();
+
+        if (getParentFragmentManager() != null) {
+            getParentFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, changePasswordFragment)
+                    .addToBackStack("account")
+                    .commit();
         }
     }
 

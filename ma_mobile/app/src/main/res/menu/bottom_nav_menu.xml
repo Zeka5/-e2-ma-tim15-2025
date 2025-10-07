@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/nav_home"
-        android:icon="@android:drawable/ic_menu_mylocation"
-        android:title="@string/nav_home" />
-
-    <item
         android:id="@+id/nav_tasks"
         android:icon="@android:drawable/ic_menu_agenda"
         android:title="Tasks" />
+
+    <item
+        android:id="@+id/nav_statistics"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="Statistics" />
 
     <item
         android:id="@+id/nav_equipment"
