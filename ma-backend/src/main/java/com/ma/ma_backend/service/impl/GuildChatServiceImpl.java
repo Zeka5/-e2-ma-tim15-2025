@@ -9,9 +9,11 @@ import com.ma.ma_backend.exception.NotFoundException;
 import com.ma.ma_backend.repository.GuildMessageRepository;
 import com.ma.ma_backend.repository.GuildRepository;
 import com.ma.ma_backend.repository.UserRepository;
+import com.ma.ma_backend.service.intr.GuildBossBattleService;
 import com.ma.ma_backend.service.intr.GuildChatService;
 import com.ma.ma_backend.service.intr.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class GuildChatServiceImpl implements GuildChatService {
     private final GuildRepository guildRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final @Lazy GuildBossBattleService guildBossBattleService;
 
     @Override
     @Transactional
@@ -44,6 +47,10 @@ public class GuildChatServiceImpl implements GuildChatService {
                 .build();
 
         GuildMessage savedMessage = guildMessageRepository.save(message);
+
+        // Trigger guild boss battle progress
+        guildBossBattleService.onGuildMessage(currentUser.getId(), guildId);
+
         return mapToDto(savedMessage);
     }
 
@@ -67,6 +74,10 @@ public class GuildChatServiceImpl implements GuildChatService {
                 .build();
 
         GuildMessage savedMessage = guildMessageRepository.save(message);
+
+        // Trigger guild boss battle progress
+        guildBossBattleService.onGuildMessage(senderId, guildId);
+
         return mapToDto(savedMessage);
     }
 

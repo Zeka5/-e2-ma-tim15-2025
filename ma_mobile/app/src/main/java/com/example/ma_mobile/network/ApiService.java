@@ -15,6 +15,9 @@ import com.example.ma_mobile.models.TaskInstance;
 import com.example.ma_mobile.models.UpdateCategoryRequest;
 import com.example.ma_mobile.models.FriendRequest;
 import com.example.ma_mobile.models.Guild;
+import com.example.ma_mobile.models.GuildBossBattle;
+import com.example.ma_mobile.models.GuildBossMissionProgress;
+import com.example.ma_mobile.models.GuildBossMissionSummary;
 import com.example.ma_mobile.models.GuildInvite;
 import com.example.ma_mobile.models.PublicUserProfile;
 import com.example.ma_mobile.models.User;
@@ -160,6 +163,25 @@ public interface ApiService {
 
     @POST("api/guilds/leave")
     Call<Void> leaveGuild();
+
+    // Guild Boss Battle endpoints (Special Mission)
+    @POST("api/guilds/{guildId}/boss-battle/start")
+    Call<GuildBossBattle> startGuildBossBattle(@Path("guildId") Long guildId);
+
+    @GET("api/guilds/{guildId}/boss-battle/active")
+    Call<GuildBossBattle> getActiveGuildBossBattle(@Path("guildId") Long guildId);
+
+    @GET("api/guilds/{guildId}/boss-battle/progress")
+    Call<GuildBossMissionSummary> getGuildBossBattleProgress(@Path("guildId") Long guildId);
+
+    @GET("api/guilds/{guildId}/boss-battle/progress/my")
+    Call<GuildBossMissionProgress> getMyProgress(@Path("guildId") Long guildId);
+
+    @GET("api/guilds/{guildId}/boss-battle/progress/user/{userId}")
+    Call<GuildBossMissionProgress> getUserProgress(@Path("guildId") Long guildId, @Path("userId") Long userId);
+
+    @GET("api/guilds/{guildId}/boss-battle/history")
+    Call<List<GuildBossBattle>> getGuildBossBattleHistory(@Path("guildId") Long guildId);
 
     // Boss Battle endpoints
     @GET("boss-battle/next-boss")

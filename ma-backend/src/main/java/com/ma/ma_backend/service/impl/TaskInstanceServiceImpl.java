@@ -11,9 +11,11 @@ import com.ma.ma_backend.mapper.EntityMapper;
 import com.ma.ma_backend.repository.TaskInstanceRepository;
 import com.ma.ma_backend.repository.UserRepository;
 import com.ma.ma_backend.service.intr.BossBattleService;
+import com.ma.ma_backend.service.intr.GuildBossBattleService;
 import com.ma.ma_backend.service.intr.TaskInstanceService;
 import com.ma.ma_backend.service.intr.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     private final UserService userService;
     private final EntityMapper entityMapper;
     private final BossBattleService bossBattleService;
+    private final @Lazy GuildBossBattleService guildBossBattleService;
     private final com.ma.ma_backend.repository.BossRepository bossRepository;
 
     @Override
@@ -115,6 +118,13 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
             System.out.println("========================");
             userRepository.save(user);
         }
+
+        // Trigger guild boss battle progress
+        guildBossBattleService.onTaskCompleted(
+            user.getId(),
+            instance.getTask().getDifficulty().name(),
+            instance.getTask().getImportance().name()
+        );
 
         return entityMapper.taskInstanceToDto(savedInstance);
     }
