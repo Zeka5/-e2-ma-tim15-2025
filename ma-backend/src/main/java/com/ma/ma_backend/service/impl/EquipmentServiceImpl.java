@@ -7,6 +7,7 @@ import com.ma.ma_backend.exception.NotFoundException;
 import com.ma.ma_backend.repository.*;
 import com.ma.ma_backend.service.intr.EquipmentService;
 import com.ma.ma_backend.service.intr.UserService;
+import com.ma.ma_backend.util.ShopPriceCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +21,9 @@ public class EquipmentServiceImpl implements EquipmentService {
     private final UserPotionRepository userPotionRepository;
     private final UserClothingRepository userClothingRepository;
     private final UserWeaponRepository userWeaponRepository;
+    private final UserGameStatsRepository userGameStatsRepository;
     private final UserService userService;
+    private final ShopPriceCalculator priceCalculator;
 
     @Override
     @Transactional(readOnly = true)
@@ -126,6 +129,7 @@ public class EquipmentServiceImpl implements EquipmentService {
             throw new InvalidRequestException("This clothing has no battles remaining");
         }
 
+        // Just activate - bonus will be calculated during battle
         clothing.setIsActive(true);
         userClothingRepository.save(clothing);
     }
@@ -195,5 +199,36 @@ public class EquipmentServiceImpl implements EquipmentService {
                 .description(template.getDescription())
                 .iconUrl(template.getIconUrl())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void upgradeWeapon(Long userWeaponId) {
+        User currentUser = userService.getLogedInUser();
+        UserGameStats stats = currentUser.getGameStats();
+
+        UserWeapon weapon = userWeaponRepository.findById(userWeaponId)
+                .orElseThrow(() -> new NotFoundException("Weapon not found"));
+
+        if (!weapon.getUserGameStats().getId().equals(stats.getId())) {
+            throw new InvalidRequestException("This weapon does not belong to you");
+        }
+
+        // Calculate upgrade cost (60% of boss reward from previous level)
+        WeaponTemplate template = weapon.getWeaponTemplate();
+        Integer upgradeCost = priceCalculator.calculatePrice(stats.getLevel(), template.getUpgradePriceMultiplier());
+
+        if (stats.getCoins() < upgradeCost) {
+            throw new InvalidRequestException("Not enough coins. Need: " + upgradeCost + ", Have: " + stats.getCoins());
+        }
+
+        // Deduct coins
+        stats.setCoins(stats.getCoins() - upgradeCost);
+        userGameStatsRepository.save(stats);
+
+        // Upgrade weapon: increase bonus by 0.01% and increment upgrade level
+        weapon.setCurrentBonusPercentage(weapon.getCurrentBonusPercentage() + 0.01);
+        weapon.setUpgradeLevel(weapon.getUpgradeLevel() + 1);
+        userWeaponRepository.save(weapon);
     }
 }

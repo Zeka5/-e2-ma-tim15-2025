@@ -223,6 +223,9 @@ public interface ApiService {
     @POST("api/equipment/clothing/{clothingId}/deactivate")
     Call<Void> deactivateClothing(@Path("clothingId") Long clothingId);
 
+    @POST("api/equipment/weapons/{weaponId}/upgrade")
+    Call<Void> upgradeWeapon(@Path("weaponId") Long weaponId);
+
     // Shop endpoints
     @GET("api/shop/potions")
     Call<List<com.example.ma_mobile.models.PotionTemplate>> getAvailablePotions();

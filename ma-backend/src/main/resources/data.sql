@@ -8,7 +8,7 @@ INSERT INTO public.users (created_at, email, username, password, role, avatar_id
 INSERT INTO public.user_game_stats (user_id, level, title, power_points, experience_points, coins, qr_code) VALUES
 (1, 3, 'ADVENTURER', 150, 500, 1000, 'ZEKA_QR_123'),
 (2, 2, 'APPRENTICE', 120, 200, 500, 'IVORAD_QR_456'),
-(3, 1, 'NOVICE', 100, 50, 300, 'KIMI_QR_789');
+(3, 1, 'NOVICE', 100, 200, 2000, 'KIMI_QR_789');
 
 -- Potion Templates (based on specification lines 264-272)
 -- Prices are calculated as: boss_reward * multiplier
@@ -27,8 +27,8 @@ INSERT INTO public.clothing_templates (name, clothing_type, bonus_percentage, pr
 -- Weapon Templates (based on specification lines 288-294)
 -- Weapons are only obtainable from boss drops, not purchasable
 INSERT INTO public.weapon_templates (name, weapon_type, base_bonus_percentage, upgrade_price_multiplier, description, icon_url) VALUES
-('Ancient Sword', 'SWORD', 5.0, 0.6, 'Permanently increases power by 5%', null),
-('Mystic Bow', 'BOW_ARROW', 5.0, 0.6, 'Permanently increases coin rewards by 5%', null);
+('Ancient Sword', 'SWORD', 5.0, 0.6, 'Permanently increases power by bonus', null),
+('Mystic Bow', 'BOW_ARROW', 5.0, 0.6, 'Permanently increases coin rewards by bonus', null);
 
 -- Friendships (bidirectional)
 -- Zeka (id=1) and Ivorad (id=2) are friends
@@ -45,3 +45,39 @@ INSERT INTO public.guilds (name, leader_id, has_active_mission, created_at) VALU
 
 -- Update users to be in the guild
 UPDATE public.users SET guild_id = 1 WHERE id IN (1, 2, 3);
+
+-- Categories for Kimi (user_id = 3)
+INSERT INTO public.categories (user_id, name, color, created_at, updated_at) VALUES
+(3, 'Work', '#FF5733', '2025-05-10 10:20:00.000000', '2025-05-10 10:20:00.000000'),
+(3, 'Personal', '#33C1FF', '2025-05-10 10:21:00.000000', '2025-05-10 10:21:00.000000');
+
+-- Tasks for Kimi (user_id = 3)
+-- difficulty_xp: VERY_EASY=1, EASY=3, HARD=7, EXTREMELY_HARD=20
+-- importance_xp: NORMAL=1, IMPORTANT=3, EXTREMELY_IMPORTANT=10, SPECIAL=100
+INSERT INTO public.tasks (user_id, category_id, title, description, difficulty, difficulty_xp, importance, importance_xp, total_xp, is_repeating, recurrence_interval, recurrence_unit, start_date, end_date, created_at, updated_at) VALUES
+(3, 1, 'Complete project report', 'Finish the monthly project report', 'HARD', 7, 'EXTREMELY_IMPORTANT', 10, 17, false, null, null, '2025-05-10 09:00:00.000000', '2025-05-15 18:00:00.000000', '2025-05-10 10:22:00.000000', '2025-05-10 10:22:00.000000'),
+(3, 1, 'Review code', 'Review pull requests from team', 'EASY', 3, 'IMPORTANT', 3, 6, false, null, null, '2025-05-11 09:00:00.000000', '2025-05-16 18:00:00.000000', '2025-05-10 10:23:00.000000', '2025-05-10 10:23:00.000000'),
+(3, 2, 'Exercise', 'Go for a run', 'EASY', 3, 'NORMAL', 1, 4, false, null, null, '2025-05-12 06:00:00.000000', '2025-05-17 20:00:00.000000', '2025-05-10 10:24:00.000000', '2025-05-10 10:24:00.000000');
+
+-- Task instances for Kimi (all completed to give XP)
+INSERT INTO public.task_instances (task_id, start_date, status, xp_awarded, xp_amount, completed_at, created_at, updated_at) VALUES
+(1, '2025-05-10 09:00:00.000000', 'COMPLETED', true, 17, '2025-05-12 17:30:00.000000', '2025-05-10 10:22:00.000000', '2025-05-12 17:30:00.000000'),
+(2, '2025-05-11 09:00:00.000000', 'COMPLETED', true, 6, '2025-05-13 16:00:00.000000', '2025-05-10 10:23:00.000000', '2025-05-13 16:00:00.000000'),
+(3, '2025-05-12 06:00:00.000000', 'COMPLETED', true, 4, '2025-05-14 07:30:00.000000', '2025-05-10 10:24:00.000000', '2025-05-14 07:30:00.000000');
+
+-- Equipment for Kimi (user_game_stats_id = 3)
+-- One-time potion (+20%)
+INSERT INTO public.user_potions (user_game_stats_id, potion_template_id, quantity, is_activated, acquired_at) VALUES
+(3, 1, 1, false, '2025-05-15 10:00:00.000000');
+
+-- Permanent potion (+5%)
+INSERT INTO public.user_potions (user_game_stats_id, potion_template_id, quantity, is_activated, acquired_at) VALUES
+(3, 3, 1, false, '2025-05-15 10:05:00.000000');
+
+-- Clothing (Power Gloves)
+INSERT INTO public.user_clothing (user_game_stats_id, clothing_template_id, accumulated_bonus, battles_remaining, is_active, acquired_at) VALUES
+(3, 1, 10, 2, false, '2025-05-15 10:10:00.000000');
+
+-- Weapon (Ancient Sword with 5% base bonus)
+INSERT INTO public.user_weapons (user_game_stats_id, weapon_template_id, current_bonus_percentage, upgrade_level, duplicate_count, acquired_at) VALUES
+(3, 1, 5.0, 0, 0, '2025-05-15 10:15:00.000000');

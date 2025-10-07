@@ -17,12 +17,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ma_mobile.adapter.FriendInviteGuildAdapter;
+import com.example.ma_mobile.models.Guild;
 import com.example.ma_mobile.models.GuildInvite;
 import com.example.ma_mobile.models.User;
 import com.example.ma_mobile.repository.FriendRepository;
 import com.example.ma_mobile.repository.GuildRepository;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class InviteFriendsFragment extends Fragment implements FriendInviteGuildAdapter.OnInviteClickListener {
 
@@ -39,6 +43,7 @@ public class InviteFriendsFragment extends Fragment implements FriendInviteGuild
     private FriendInviteGuildAdapter adapter;
 
     private Long guildId;
+    private Guild currentGuild;
 
     public InviteFriendsFragment() {
         // Required empty public constructor
@@ -75,7 +80,7 @@ public class InviteFriendsFragment extends Fragment implements FriendInviteGuild
         initializeViews(view);
         setupRecyclerView();
         setupListeners();
-        loadFriends();
+        loadGuildDetails();
     }
 
     private void initializeViews(View view) {
@@ -99,20 +104,42 @@ public class InviteFriendsFragment extends Fragment implements FriendInviteGuild
         });
     }
 
-    private void loadFriends() {
+    private void loadGuildDetails() {
         showLoading(true);
 
+        guildRepository.getGuildById(guildId, new GuildRepository.GuildCallback() {
+            @Override
+            public void onSuccess(Guild guild) {
+                currentGuild = guild;
+                loadFriends();
+            }
+
+            @Override
+            public void onError(String error) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        showLoading(false);
+                        showToast("Failed to load guild: " + error);
+                        Log.e(TAG, "Error loading guild: " + error);
+                    });
+                }
+            }
+        });
+    }
+
+    private void loadFriends() {
         friendRepository.getFriends(new FriendRepository.FriendsListCallback() {
             @Override
             public void onSuccess(List<User> friends) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         showLoading(false);
-                        if (friends.isEmpty()) {
+                        List<User> nonMemberFriends = filterNonMembers(friends);
+                        if (nonMemberFriends.isEmpty()) {
                             showEmptyState();
                         } else {
                             hideEmptyState();
-                            adapter.setFriends(friends);
+                            adapter.setFriends(nonMemberFriends);
                         }
                     });
                 }
@@ -130,6 +157,30 @@ public class InviteFriendsFragment extends Fragment implements FriendInviteGuild
                 }
             }
         });
+    }
+
+    private List<User> filterNonMembers(List<User> friends) {
+        if (currentGuild == null || currentGuild.getMembers() == null) {
+            return friends;
+        }
+
+        // Create a set of member IDs for fast lookup
+        Set<Long> memberIds = new HashSet<>();
+        for (User member : currentGuild.getMembers()) {
+            if (member.getId() != null) {
+                memberIds.add(member.getId());
+            }
+        }
+
+        // Filter out friends who are already members
+        List<User> nonMembers = new ArrayList<>();
+        for (User friend : friends) {
+            if (friend.getId() != null && !memberIds.contains(friend.getId())) {
+                nonMembers.add(friend);
+            }
+        }
+
+        return nonMembers;
     }
 
     @Override

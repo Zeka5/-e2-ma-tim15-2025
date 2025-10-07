@@ -37,10 +37,10 @@ public class BossBattleFragment extends Fragment {
 
     private TextView tvBossName, tvBossLevel, tvBossDescription, tvBossHp;
     private TextView tvUserPp, tvSuccessRate, tvAttacksRemaining;
-    private TextView tvActiveEquipment, tvBattleResult, tvXpProgress;
+    private TextView tvBattleResult, tvXpProgress;
     private ImageView ivBossImage;
     private ProgressBar pbBossHp, progressLoading, pbXpProgress;
-    private MaterialButton btnAttack, btnStartBattle, btnSelectEquipment;
+    private MaterialButton btnAttack, btnStartBattle;
     private View layoutBattleView, layoutXpProgressView;
 
     private ApiService apiService;
@@ -85,7 +85,6 @@ public class BossBattleFragment extends Fragment {
         tvUserPp = view.findViewById(R.id.tv_user_pp);
         tvSuccessRate = view.findViewById(R.id.tv_success_rate);
         tvAttacksRemaining = view.findViewById(R.id.tv_attacks_remaining);
-        tvActiveEquipment = view.findViewById(R.id.tv_active_equipment);
         tvBattleResult = view.findViewById(R.id.tv_battle_result);
         tvXpProgress = view.findViewById(R.id.tv_xp_progress);
         ivBossImage = view.findViewById(R.id.iv_boss_image);
@@ -94,7 +93,6 @@ public class BossBattleFragment extends Fragment {
         progressLoading = view.findViewById(R.id.progress_loading);
         btnAttack = view.findViewById(R.id.btn_attack);
         btnStartBattle = view.findViewById(R.id.btn_start_battle);
-        btnSelectEquipment = view.findViewById(R.id.btn_select_equipment);
         layoutBattleView = view.findViewById(R.id.layout_battle);
         layoutXpProgressView = view.findViewById(R.id.layout_xp_progress);
     }
@@ -102,7 +100,6 @@ public class BossBattleFragment extends Fragment {
     private void setupClickListeners() {
         btnStartBattle.setOnClickListener(v -> startBattle());
         btnAttack.setOnClickListener(v -> performAttack());
-        btnSelectEquipment.setOnClickListener(v -> showEquipmentSelection());
     }
 
     private void loadBossData() {
@@ -180,15 +177,8 @@ public class BossBattleFragment extends Fragment {
     }
 
     private void startBattle() {
-        // Show equipment selection dialog first
-        EquipmentSelectionDialog dialog = EquipmentSelectionDialog.newInstance(selectedEquipmentIds);
-        dialog.setOnEquipmentSelectedListener(equipmentIds -> {
-            selectedEquipmentIds = equipmentIds;
-            updateEquipmentDisplay();
             // After equipment is selected, create the battle
             createBattle();
-        });
-        dialog.show(getChildFragmentManager(), "EquipmentSelectionDialog");
     }
 
     private void createBattle() {
@@ -311,23 +301,6 @@ public class BossBattleFragment extends Fragment {
         dialog.show(getChildFragmentManager(), "RewardChestDialog");
     }
 
-    private void showEquipmentSelection() {
-        EquipmentSelectionDialog dialog = EquipmentSelectionDialog.newInstance(selectedEquipmentIds);
-        dialog.setOnEquipmentSelectedListener(equipmentIds -> {
-            selectedEquipmentIds = equipmentIds;
-            updateEquipmentDisplay();
-        });
-        dialog.show(getChildFragmentManager(), "EquipmentSelectionDialog");
-    }
-
-    private void updateEquipmentDisplay() {
-        if (selectedEquipmentIds.isEmpty()) {
-            tvActiveEquipment.setText("No equipment selected");
-        } else {
-            tvActiveEquipment.setText(selectedEquipmentIds.size() + " equipment item(s) selected");
-        }
-    }
-
     private void displayBossInfo() {
         if (currentBoss == null) return;
 
@@ -441,7 +414,6 @@ public class BossBattleFragment extends Fragment {
 
         btnStartBattle.setVisibility(View.VISIBLE);
         btnAttack.setVisibility(View.GONE);
-        btnSelectEquipment.setEnabled(true);
         tvBattleResult.setVisibility(View.GONE);
     }
 
@@ -453,7 +425,6 @@ public class BossBattleFragment extends Fragment {
         btnStartBattle.setVisibility(View.GONE);
         btnAttack.setVisibility(View.VISIBLE);
         btnAttack.setEnabled(true);
-        btnSelectEquipment.setEnabled(false);
         tvBattleResult.setVisibility(View.GONE);
     }
 
