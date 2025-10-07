@@ -34,9 +34,18 @@ public class ShopServiceImpl implements ShopService {
         User currentUser = userService.getLogedInUser();
         UserGameStats stats = currentUser.getGameStats();
 
+        // Get user's existing potions
+        List<UserPotion> userPotions = userPotionRepository.findByUserGameStats(stats);
+        List<Long> ownedPermanentPotionIds = userPotions.stream()
+                .filter(p -> p.getPotionTemplate().getIsPermanent())
+                .map(p -> p.getPotionTemplate().getId())
+                .collect(Collectors.toList());
+
         List<PotionTemplate> templates = potionTemplateRepository.findAll();
 
         return templates.stream()
+                // Filter out permanent potions that user already owns
+                .filter(template -> !template.getIsPermanent() || !ownedPermanentPotionIds.contains(template.getId()))
                 .map(template -> {
                     Integer price = priceCalculator.calculatePrice(stats.getLevel(), template.getPriceMultiplier());
                     return mapPotionToDto(template, price);

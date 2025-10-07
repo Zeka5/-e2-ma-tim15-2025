@@ -60,4 +60,10 @@ public class EquipmentController {
         equipmentService.deactivateClothing(clothingId);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/weapons/{weaponId}/upgrade")
+    public ResponseEntity<Void> upgradeWeapon(@PathVariable Long weaponId) {
+        equipmentService.upgradeWeapon(weaponId);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -25,7 +25,8 @@ import com.example.ma_mobile.repository.EquipmentRepository;
 import java.util.List;
 
 public class EquipmentListFragment extends Fragment
-        implements UserPotionAdapter.OnPotionActionListener, UserClothingAdapter.OnClothingActionListener {
+        implements UserPotionAdapter.OnPotionActionListener, UserClothingAdapter.OnClothingActionListener,
+        UserWeaponAdapter.OnWeaponActionListener {
 
     private static final String TAG = "EquipmentListFragment";
     private static final String ARG_TYPE = "type";
@@ -95,7 +96,7 @@ public class EquipmentListFragment extends Fragment
                 recyclerView.setAdapter(clothingAdapter);
                 break;
             case TYPE_WEAPONS:
-                weaponAdapter = new UserWeaponAdapter();
+                weaponAdapter = new UserWeaponAdapter(this);
                 recyclerView.setAdapter(weaponAdapter);
                 break;
         }
@@ -296,6 +297,31 @@ public class EquipmentListFragment extends Fragment
                     getActivity().runOnUiThread(() -> {
                         showToast("Failed to deactivate clothing: " + error);
                         Log.e(TAG, "Error deactivating clothing: " + error);
+                    });
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onUpgradeWeapon(UserWeapon weapon) {
+        equipmentRepository.upgradeWeapon(weapon.getId(), new EquipmentRepository.ActionCallback() {
+            @Override
+            public void onSuccess() {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        showToast("Weapon upgraded successfully!");
+                        loadWeapons(); // Refresh list
+                    });
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        showToast(error);
+                        Log.e(TAG, "Error upgrading weapon: " + error);
                     });
                 }
             }

@@ -75,18 +75,15 @@
             android:layout_marginTop="4dp"
             android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/tv_weapon_status"
+        <Button
+            android:id="@+id/btn_upgrade_weapon"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Always Active"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="#4CAF50"
-            android:gravity="center"
+            android:layout_height="48dp"
+            android:text="Upgrade"
+            android:textAllCaps="false"
             android:layout_marginTop="12dp"
-            android:padding="8dp"
-            android:background="@drawable/bg_status_active" />
+            app:cornerRadius="8dp"
+            android:backgroundTint="#FF9800" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

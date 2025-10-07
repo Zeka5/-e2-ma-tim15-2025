@@ -6,16 +6,19 @@ import com.ma.ma_backend.exception.NotFoundException;
 import com.ma.ma_backend.repository.*;
 import com.ma.ma_backend.service.intr.BossBattleService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BossBattleServiceImpl implements BossBattleService {
 
     private final BossRepository bossRepository;
@@ -27,12 +30,12 @@ public class BossBattleServiceImpl implements BossBattleService {
     private final ClothingTemplateRepository clothingTemplateRepository;
     private final UserWeaponRepository userWeaponRepository;
     private final UserClothingRepository userClothingRepository;
+    private final UserPotionRepository userPotionRepository;
     private final Random random = new Random();
 
     private static final int MAX_ATTACKS = 5;
     private static final double EQUIPMENT_DROP_CHANCE = 1.0; // 100% (for testing)
-    private static final double WEAPON_DROP_CHANCE = 0.05; // 5% of equipment drops
-    private static final double CLOTHING_DROP_CHANCE = 0.95; // 95% of equipment drops
+    private static final double WEAPON_DROP_CHANCE = 1.0; // 5% of equipment drops
     private static final double HALF_REWARD_HP_THRESHOLD = 0.50; // 50% HP remaining
 
     @Override
@@ -146,9 +149,19 @@ public class BossBattleServiceImpl implements BossBattleService {
             applyRewards(userGameStats, battle, rewards);
             markBossAsDefeated(userGameStats, battle.getBoss());
 
+            // Consume one-time potions
+            consumeOneTimePotions(userGameStats);
+
             // Level up only if boss level matches current user level (ensures one-time level up)
             if (battle.getBoss().getLevel().equals(userGameStats.getLevel())) {
                 performLevelUp(userGameStats);
+            }
+
+            // Decrease clothing battles remaining
+            List<UserClothing> clothing = userClothingRepository.findByUserGameStatsId(userGameStats.getId());
+            log.info("active clothing number: {}",clothing.size());
+            if (!clothing.isEmpty()) {
+                decreaseClothingBattles(clothing);
             }
 
         } else if (battle.getAttacksUsed() >= MAX_ATTACKS) {
@@ -163,6 +176,9 @@ public class BossBattleServiceImpl implements BossBattleService {
                 battle.setCompletedAt(LocalDateTime.now());
                 rewards = calculateRewards(battle, false);
                 applyRewards(userGameStats, battle, rewards);
+
+                // Consume one-time potions
+                consumeOneTimePotions(userGameStats);
 
                 // Level up even on loss if boss was brought below 50% HP
                 if (battle.getBoss().getLevel().equals(userGameStats.getLevel())) {
@@ -187,11 +203,6 @@ public class BossBattleServiceImpl implements BossBattleService {
         response.setBattleComplete(battleComplete);
         response.setBattleResult(battleResult);
         response.setRewards(rewards);
-
-        // Decrease clothing battles remaining
-        if (activeClothingIds != null && !activeClothingIds.isEmpty()) {
-            decreaseClothingBattles(activeClothingIds);
-        }
 
         return response;
     }
@@ -328,7 +339,19 @@ public class BossBattleServiceImpl implements BossBattleService {
             .mapToInt(UserClothing::getAccumulatedBonus)
             .sum();
 
-        return basePP + (int) (basePP * weaponBonus / 100.0) + clothingBonus;
+        // Add PP from activated potions (both permanent and one-time)
+        List<UserPotion> potions = userPotionRepository.findByUserGameStats(userGameStats);
+        int potionBonusPercentage = potions.stream()
+            .filter(p -> p.getIsActivated() != null && p.getIsActivated())
+            .filter(p -> p.getPotionTemplate().getPowerBonus() != null)
+            .mapToInt(p -> p.getPotionTemplate().getPowerBonus())
+            .sum();
+
+        // Calculate total with percentage bonuses
+        int totalPercentageBonus = (int) weaponBonus + potionBonusPercentage;
+        int ppFromPercentages = (int) (basePP * totalPercentageBonus / 100.0);
+
+        return basePP + ppFromPercentages + clothingBonus;
     }
 
     private Double calculateSuccessRate(Long userId, Integer currentLevel) {
@@ -401,14 +424,29 @@ public class BossBattleServiceImpl implements BossBattleService {
 
         // Add equipment if dropped
         if ("WEAPON".equals(rewards.getEquipmentType()) && battle.getEquipmentEarnedWeapon() != null) {
-            UserWeapon userWeapon = UserWeapon.builder()
-                .userGameStats(userGameStats)
-                .weaponTemplate(battle.getEquipmentEarnedWeapon())
-                .currentBonusPercentage(battle.getEquipmentEarnedWeapon().getBaseBonusPercentage())
-                .upgradeLevel(0)
-                .duplicateCount(0)
-                .build();
-            userWeaponRepository.save(userWeapon);
+            WeaponTemplate droppedWeapon = battle.getEquipmentEarnedWeapon();
+
+            // Check if user already has this weapon type
+            Optional<UserWeapon> existingWeapon = userWeaponRepository
+                .findByUserGameStatsAndWeaponTemplate(userGameStats, droppedWeapon);
+
+            if (existingWeapon.isPresent()) {
+                // Duplicate weapon: add +0.02% to bonus and increment duplicate count
+                UserWeapon weapon = existingWeapon.get();
+                weapon.setCurrentBonusPercentage(weapon.getCurrentBonusPercentage() + 0.02);
+                weapon.setDuplicateCount(weapon.getDuplicateCount() + 1);
+                userWeaponRepository.save(weapon);
+            } else {
+                // New weapon: create new entry
+                UserWeapon userWeapon = UserWeapon.builder()
+                    .userGameStats(userGameStats)
+                    .weaponTemplate(droppedWeapon)
+                    .currentBonusPercentage(droppedWeapon.getBaseBonusPercentage())
+                    .upgradeLevel(0)
+                    .duplicateCount(0)
+                    .build();
+                userWeaponRepository.save(userWeapon);
+            }
         } else if ("CLOTHING".equals(rewards.getEquipmentType()) && battle.getEquipmentEarnedClothing() != null) {
             UserClothing userClothing = UserClothing.builder()
                 .userGameStats(userGameStats)
@@ -442,15 +480,17 @@ public class BossBattleServiceImpl implements BossBattleService {
         }
     }
 
-    private void decreaseClothingBattles(List<Long> clothingIds) {
-        for (Long clothingId : clothingIds) {
-            UserClothing clothing = userClothingRepository.findById(clothingId).orElse(null);
-            if (clothing != null && clothing.getIsActive()) {
-                clothing.setBattlesRemaining(clothing.getBattlesRemaining() - 1);
-                if (clothing.getBattlesRemaining() <= 0) {
-                    clothing.setIsActive(false);
+    private void decreaseClothingBattles(List<UserClothing> clothing) {
+        for (UserClothing peace : clothing) {
+            log.info("Clothing: {} has battles: {}", peace.getId(), peace.getBattlesRemaining());
+            if (peace.getIsActive()) {
+                peace.setBattlesRemaining(peace.getBattlesRemaining() - 1);
+                log.info("new remaining battles: {}", peace.getBattlesRemaining());
+                if (peace.getBattlesRemaining() <= 0) {
+                    userClothingRepository.delete(peace);
+                } else{
+                    userClothingRepository.save(peace);
                 }
-                userClothingRepository.save(clothing);
             }
         }
     }
@@ -549,5 +589,24 @@ public class BossBattleServiceImpl implements BossBattleService {
         Double successRate = calculateSuccessRate(userId, userGameStats.getLevel());
 
         return new BattleStatsPreviewDto(userPP, successRate, MAX_ATTACKS);
+    }
+
+    private void consumeOneTimePotions(UserGameStats userGameStats) {
+        List<UserPotion> potions = userPotionRepository.findByUserGameStats(userGameStats);
+
+        for (UserPotion potion : potions) {
+            // Only consume activated one-time (non-permanent) potions
+            if (potion.getIsActivated() && !potion.getPotionTemplate().getIsPermanent()) {
+                if (potion.getQuantity() > 1) {
+                    // Decrease quantity
+                    potion.setQuantity(potion.getQuantity() - 1);
+                    potion.setIsActivated(false); // Deactivate after use
+                    userPotionRepository.save(potion);
+                } else {
+                    // Delete if quantity is 1
+                    userPotionRepository.delete(potion);
+                }
+            }
+        }
     }
 }

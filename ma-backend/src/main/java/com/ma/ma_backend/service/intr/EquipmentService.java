@@ -18,4 +18,6 @@ public interface EquipmentService {
 
     void activateClothing(Long userClothingId);
     void deactivateClothing(Long userClothingId);
+
+    void upgradeWeapon(Long userWeaponId);
 }

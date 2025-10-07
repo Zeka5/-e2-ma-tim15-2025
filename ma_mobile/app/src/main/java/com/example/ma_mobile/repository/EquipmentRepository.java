@@ -244,7 +244,7 @@ public class EquipmentRepository {
                     Log.d(TAG, "Clothing deactivated successfully");
                     callback.onSuccess();
                 } else {
-                    String errorMessage = "Failed to deactivate clothing: " + response.code();
+                    String errorMessage = getErrorMessage(response);
                     Log.e(TAG, errorMessage);
                     callback.onError(errorMessage);
                 }
@@ -257,5 +257,56 @@ public class EquipmentRepository {
                 callback.onError(errorMessage);
             }
         });
+    }
+
+    // Upgrade weapon
+    public void upgradeWeapon(Long weaponId, ActionCallback callback) {
+        Call<Void> call = apiService.upgradeWeapon(weaponId);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.d(TAG, "Weapon upgraded successfully");
+                    callback.onSuccess();
+                } else {
+                    String errorMessage = getErrorMessage(response);
+                    Log.e(TAG, errorMessage);
+                    callback.onError(errorMessage);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                String errorMessage = "Network error: " + t.getMessage();
+                Log.e(TAG, errorMessage, t);
+                callback.onError(errorMessage);
+            }
+        });
+    }
+
+    // Helper method to extract error message from response
+    private String getErrorMessage(Response<?> response) {
+        try {
+            if (response.errorBody() != null) {
+                String errorBody = response.errorBody().string();
+                // Try to extract the message from JSON response
+                if (errorBody.contains("\"") && errorBody.contains(":")) {
+                    // Simple JSON parsing for message field
+                    int messageStart = errorBody.indexOf("\"message\"");
+                    if (messageStart != -1) {
+                        int valueStart = errorBody.indexOf(":", messageStart) + 1;
+                        int valueEnd = errorBody.indexOf("\"", valueStart + 2);
+                        if (valueEnd != -1) {
+                            return errorBody.substring(valueStart + 2, valueEnd);
+                        }
+                    }
+                }
+                return errorBody;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error parsing error message", e);
+        }
+        return "Failed with code: " + response.code();
     }
 }

@@ -3,6 +3,7 @@ package com.example.ma_mobile.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,9 +19,15 @@ import java.util.Locale;
 public class UserWeaponAdapter extends RecyclerView.Adapter<UserWeaponAdapter.WeaponViewHolder> {
 
     private List<UserWeapon> weapons;
+    private OnWeaponActionListener listener;
 
-    public UserWeaponAdapter() {
+    public interface OnWeaponActionListener {
+        void onUpgradeWeapon(UserWeapon weapon);
+    }
+
+    public UserWeaponAdapter(OnWeaponActionListener listener) {
         this.weapons = new ArrayList<>();
+        this.listener = listener;
     }
 
     public void setWeapons(List<UserWeapon> weapons) {
@@ -54,7 +61,7 @@ public class UserWeaponAdapter extends RecyclerView.Adapter<UserWeaponAdapter.We
         private TextView tvLevel;
         private TextView tvDuplicates;
         private TextView tvDescription;
-        private TextView tvStatus;
+        private Button btnUpgrade;
 
         public WeaponViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -64,13 +71,13 @@ public class UserWeaponAdapter extends RecyclerView.Adapter<UserWeaponAdapter.We
             tvLevel = itemView.findViewById(R.id.tv_weapon_level);
             tvDuplicates = itemView.findViewById(R.id.tv_weapon_duplicates);
             tvDescription = itemView.findViewById(R.id.tv_weapon_description);
-            tvStatus = itemView.findViewById(R.id.tv_weapon_status);
+            btnUpgrade = itemView.findViewById(R.id.btn_upgrade_weapon);
         }
 
         public void bind(UserWeapon weapon) {
             tvName.setText(weapon.getName() != null ? weapon.getName() : "Unknown Weapon");
             tvType.setText(weapon.getType() != null ? weapon.getType() : "");
-            tvBonus.setText(String.format(Locale.US, "Bonus: %.1f%%",
+            tvBonus.setText(String.format(Locale.US, "Bonus: %.2f%%",
                 weapon.getCurrentBonusPercentage() != null ? weapon.getCurrentBonusPercentage() : 0.0));
             tvLevel.setText("Level: " + (weapon.getUpgradeLevel() != null ? weapon.getUpgradeLevel() : 0));
             tvDuplicates.setText("Duplicates: " + (weapon.getDuplicateCount() != null ? weapon.getDuplicateCount() : 0));
@@ -82,9 +89,12 @@ public class UserWeaponAdapter extends RecyclerView.Adapter<UserWeaponAdapter.We
                 tvDescription.setVisibility(View.GONE);
             }
 
-            // Weapons are always active
-            tvStatus.setText("Always Active");
-            tvStatus.setVisibility(View.VISIBLE);
+            // Upgrade button
+            btnUpgrade.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onUpgradeWeapon(weapon);
+                }
+            });
         }
     }
 }
