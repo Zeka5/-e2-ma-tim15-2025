@@ -6,10 +6,12 @@ import com.ma.ma_backend.dto.PotionTemplateDto;
 import com.ma.ma_backend.exception.InvalidRequestException;
 import com.ma.ma_backend.exception.NotFoundException;
 import com.ma.ma_backend.repository.*;
+import com.ma.ma_backend.service.intr.GuildBossBattleService;
 import com.ma.ma_backend.service.intr.ShopService;
 import com.ma.ma_backend.service.intr.UserService;
 import com.ma.ma_backend.util.ShopPriceCalculator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class ShopServiceImpl implements ShopService {
     private final UserGameStatsRepository userGameStatsRepository;
     private final UserService userService;
     private final ShopPriceCalculator priceCalculator;
+    private final @Lazy GuildBossBattleService guildBossBattleService;
 
     @Override
     @Transactional(readOnly = true)
@@ -105,6 +108,9 @@ public class ShopServiceImpl implements ShopService {
                     .build();
             userPotionRepository.save(userPotion);
         }
+
+        // Trigger guild boss battle progress
+        guildBossBattleService.onShopPurchase(currentUser.getId());
     }
 
     @Override
@@ -135,6 +141,9 @@ public class ShopServiceImpl implements ShopService {
                 .isActive(false)
                 .build();
         userClothingRepository.save(userClothing);
+
+        // Trigger guild boss battle progress
+        guildBossBattleService.onShopPurchase(currentUser.getId());
     }
 
     private PotionTemplateDto mapPotionToDto(PotionTemplate template, Integer price) {

@@ -57,6 +57,21 @@
         android:drawableStart="@android:drawable/ic_menu_send"
         android:drawablePadding="8dp" />
 
+    <!-- Special Mission Button -->
+    <Button
+        android:id="@+id/btn_special_mission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="⚔️ Special Mission"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        android:padding="16dp"
+        app:cornerRadius="8dp"
+        android:backgroundTint="#FF5722" />
+
     <!-- Invite Friends Button (only for leader) -->
     <Button
         android:id="@+id/btn_invite_friends"
